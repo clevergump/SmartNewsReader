@@ -1,0 +1,9 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="news_list_item_left_or_right_margin">10dp</dimen>
+    <dimen name="news_list_item_top_or_bottom_margin">10dp</dimen>
+    <dimen name="news_list_item_three_image_imagewidth">108dp</dimen>
+    <dimen name="news_list_item_three_image_imageheight">75dp</dimen>
+</resources>

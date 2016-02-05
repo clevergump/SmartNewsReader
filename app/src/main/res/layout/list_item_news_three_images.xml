@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_netease_news_list_item">
+
+    <TextView
+        android:id="@+id/tv_news_item_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="@dimen/news_list_item_left_or_right_margin"
+        android:layout_marginRight="@dimen/news_list_item_left_or_right_margin"
+        android:layout_marginTop="@dimen/news_list_item_top_or_bottom_margin"
+        android:layout_marginBottom="5dp"
+        android:text="@string/news_item_title_default"
+        android:textSize="15sp" />
+
+    <ImageView
+        android:id="@+id/iv_news_list_item_left_image"
+        android:layout_width="@dimen/news_list_item_three_image_imagewidth"
+        android:layout_height="@dimen/news_list_item_three_image_imageheight"
+        android:layout_below="@id/tv_news_item_title"
+        android:layout_marginBottom="@dimen/news_list_item_top_or_bottom_margin"
+        android:layout_alignLeft="@id/tv_news_item_title"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/ic_launcher"/>
+
+    <ImageView
+        android:id="@+id/iv_news_list_item_right_image"
+        android:layout_width="@dimen/news_list_item_three_image_imagewidth"
+        android:layout_height="@dimen/news_list_item_three_image_imageheight"
+        android:layout_alignTop="@id/iv_news_list_item_left_image"
+        android:layout_alignRight="@id/tv_news_item_title"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/ic_launcher"/>
+
+    <ImageView
+        android:id="@+id/iv_news_list_item_middle_image"
+        android:layout_width="@dimen/news_list_item_three_image_imagewidth"
+        android:layout_height="@dimen/news_list_item_three_image_imageheight"
+        android:layout_alignTop="@id/iv_news_list_item_left_image"
+        android:layout_centerHorizontal="true"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/ic_launcher"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginLeft="@dimen/news_list_item_left_or_right_margin"
+        android:layout_marginRight="@dimen/news_list_item_left_or_right_margin"
+        android:layout_below="@id/iv_news_list_item_left_image"
+        android:background="@color/news_list_item_divider"/>
+
+</RelativeLayout>

@@ -1,0 +1,34 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 14
+    buildToolsVersion '23.0.2'
+
+    defaultConfig {
+        applicationId "com.clevergump.newsreader"
+        minSdkVersion 14
+        targetSdkVersion 14
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+}
+
+dependencies {
+    compile files('libs/eventbus.jar')
+    compile files('libs/volley.jar')
+    compile files('libs/gson-2.3.1.jar')
+    compile project(':viewpagerindicator_library')
+    compile project(':ptr_library')
+    compile files('libs/android-support-v4.jar')
+    compile files('libs/universal-image-loader-1.9.5.jar')
+}

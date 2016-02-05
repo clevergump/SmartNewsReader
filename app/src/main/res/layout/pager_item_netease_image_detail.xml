@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/vg_image_pager_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black">
+
+    <ProgressBar
+        android:id="@+id/progress_bar_loading"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_centerInParent="true"
+        android:visibility="visible"/>
+
+    <RelativeLayout
+        android:id="@+id/vg_image_detail_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/iv_image"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:layout_centerInParent="true"
+            android:src="@mipmap/bg_image_loading"
+            android:scaleType="fitXY"/>
+
+        <TextView
+            android:id="@+id/tv_image_number"
+            android:layout_width="40dp"
+            android:layout_height="30dp"
+            android:layout_alignLeft="@+id/iv_image"
+            android:layout_alignBottom="@+id/iv_image"
+            android:text="1/3"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:background="@android:color/black"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>

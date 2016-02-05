@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/iv_load_fail"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_centerHorizontal="true"
+        android:src="@mipmap/bg_load_fail" />
+
+    <TextView
+        android:id="@+id/tv_load_fail_desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/iv_load_fail"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="25dp"
+        android:layout_marginTop="5dp"
+        android:text="@string/load_fail_desc"
+        android:textColor="@color/load_fail_desc"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/tv_reload"
+        android:layout_width="120dp"
+        android:layout_height="45dp"
+        android:layout_below="@id/tv_load_fail_desc"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/bg_tv_reload_selector"
+        android:gravity="center"
+        android:text="@string/reload"
+        android:textColor="@color/load_fail_desc"
+        android:textSize="16sp" />
+</RelativeLayout>

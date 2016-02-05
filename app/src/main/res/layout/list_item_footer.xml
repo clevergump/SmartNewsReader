@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true">
+
+    <TextView
+        android:id="@+id/tv_footer_no_more_to_load"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="@string/no_more_to_load"
+        android:textSize="15sp"
+        android:textColor="@color/color_tv_no_more_to_load"
+        android:gravity="center"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/tv_footer_load_fail"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="@string/load_fail"
+        android:textColor="@color/bg_load_fail"
+        android:textSize="17sp"
+        android:gravity="center"
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:id="@+id/vg_footer_loading_view"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:visibility="visible">
+        <ProgressBar
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="120dp"
+            android:layout_marginRight="10dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:text="@string/loading"
+            android:textSize="15sp" />
+    </LinearLayout>
+</FrameLayout>

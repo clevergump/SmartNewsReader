@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 整个APP的主颜色 -->
+    <color name="app_base_color">#ff3f51b5</color>
+    <color name="load_fail_desc">#ff9c9c9c</color>
+    <color name="reload_pressed">#339c9c9c</color>
+    <color name="colorPrimary">#ff3f51b5</color>
+    <color name="colorPrimaryDark">#ff303f9f</color>
+    <color name="colorAccent">#ffff4081</color>
+    <color name="news_list_item_divider">#11000000</color>
+    <color name="color_tv_no_more_to_load">#55000000</color>
+    <color name="color_news_detail_title">#55000000</color>
+    <color name="color_image_detail_title">#ffffff</color>
+    <color name="color_news_detail_title_back_pressed">#55000000</color>
+    <color name="color_image_detail_title_back_pressed">#ffffff</color>
+    <color name="bg_news_detail_base">#EDEDED</color>
+    <color name="bg_image_detail_base">#000000</color>
+    <!-- ListView的item被点击时的背景颜色 -->
+    <color name="color_netease_news_clicked">#22000000</color>
+    <!-- ListView的item的 digest摘要文字的颜色 -->
+    <color name="color_netease_news_list_item_digest">#55000000</color>
+    <!-- ListView的item的 title标题未被读过时的文字颜色 -->
+    <color name="color_netease_news_list_item_title_not_read">#000000</color>
+    <!-- ListView的item的 title标题被读过后的文字颜色 -->
+    <color name="color_netease_news_list_item_title_has_read">#55000000</color>
+</resources>

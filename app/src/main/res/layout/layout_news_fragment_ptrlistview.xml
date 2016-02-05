@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.handmark.pulltorefresh.library.PullToRefreshListView
+        android:id="@+id/lv_news"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:overScrollMode="never"
+        android:visibility="visible"/>
+
+    <!-- 加载时会显示的环形进度条 -->
+    <ProgressBar
+        android:id="@+id/progress_bar_loading"
+        style="@android:style/Widget.ProgressBar.Small"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
+
+    <!-- 加载失败(比如: 断网), 并且没有缓存可供显示时所需要显示的背景图 -->
+    <ViewStub
+        android:id="@+id/viewstub_load_fail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout="@layout/layout_load_fail" />
+
+</RelativeLayout>

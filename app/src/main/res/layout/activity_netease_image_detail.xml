@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black">
+
+    <include
+        android:id="@+id/netease_image_detail_title_bar"
+        layout="@layout/layout_netease_image_detail_title_bar"/>
+
+    <TextView
+        android:id="@+id/tv_netease_image_detail_title"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:text="国家队队友力挺伊布登陆英超"
+        android:textSize="20sp"
+        android:textColor="@color/color_image_detail_title"
+        android:gravity="center"
+        android:layout_below="@+id/netease_image_detail_title_bar"
+        android:layout_marginTop="10dp"/>
+
+<!--    <ProgressBar
+        android:id="@+id/progress_bar_loading"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_centerInParent="true"
+        android:visibility="visible"/>-->
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewpager_netease_image_detail_imgs"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/tv_netease_image_detail_title"/>
+
+
+</RelativeLayout>

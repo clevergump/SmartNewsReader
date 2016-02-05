@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">NewsReader</string>
+    <string name="title_news">新闻资讯</string>
+    <string name="title_news_detail">新闻详情</string>
+    <string name="title_image_detail">图片详情</string>
+    <string name="reload">重新加载</string>
+    <string name="load_fail_desc">呃, 页面加载失败了</string>
+    <string name="news_item_title_default">勒布朗31+7+8 骑士豪取7连胜</string>
+    <string name="news_item_digest_default">小莫9中8取29分，勒夫22+8；爵士6人得分上双成徒劳。</string>
+
+    <string name="fail_network_connection">网络异常, 请检查相关设置</string>
+    <string name="loading">正在加载中...</string>
+    <string name="load_fail">加载失败, 请点击重试</string>
+    <string name="no_more_to_load">没有更多数据了</string>
+    <string name="netease_news_detail_source">来源:网易新闻</string>
+    <string name="netease_news_detail_ptime">2015-11-29 16:41:12</string>
+
+    <string-array name="test_array">
+        <item>测试0</item>
+        <item>测试1</item>
+        <item>测试2</item>
+        <item>测试3</item>
+        <item>测试4</item>
+        <item>测试5</item>
+        <item>测试6</item>
+        <item>测试7</item>
+        <item>测试8</item>
+        <item>测试9</item>
+    </string-array>
+
+</resources>

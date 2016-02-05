@@ -16,6 +16,10 @@ gen/
 .gradle/
 build/
 
+# idea files
+.idea/
+*.iml
+
 # Local configuration file (sdk path, etc)
 local.properties
 
@@ -30,3 +34,8 @@ proguard/
 
 # Android Studio captures folder
 captures/
+/.idea
+/*.iml
+/app/*.iml
+/ptr_library/*.iml
+/viewpagerindicator_library/*.iml

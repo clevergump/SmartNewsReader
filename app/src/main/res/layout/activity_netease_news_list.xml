@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/title_bar"
+        layout="@layout/layout_netease_news_tabs_title_bar" />
+
+    <com.viewpagerindicator.TabPageIndicator
+        android:id="@+id/tab_page_indicator"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:layout_below="@id/title_bar"/>
+
+    <View
+        android:id="@+id/line_divider"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginLeft="@dimen/news_list_item_left_or_right_margin"
+        android:layout_marginRight="@dimen/news_list_item_left_or_right_margin"
+        android:layout_below="@id/tab_page_indicator"
+        android:background="@color/news_list_item_divider"/>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewpager_news"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/line_divider" />
+
+</LinearLayout>
