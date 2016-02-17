@@ -16,6 +16,8 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
+import com.squareup.leakcanary.LeakCanary;
+import com.squareup.leakcanary.RefWatcher;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +35,8 @@ public class MyApplication extends Application {
     private static final String IMAGE_CACHE_DIR_NAME = "imageCache";
     private static Context mAppContext;
     public static Map<String, Long> lastUpdateTimeMillis = new HashMap<String, Long>();
+    // 用于观察记录内存泄露.
+    private RefWatcher mRefWatcher;
     public static Handler mToastDebugHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -46,6 +50,8 @@ public class MyApplication extends Application {
         mAppContext = this;
         // 初始化图片加载框架.
         initImageLoader();
+        // 注册LeakCanary内存泄露检测器.
+        mRefWatcher = LeakCanary.install(this);
     }
 
     /**
@@ -107,5 +113,17 @@ public class MyApplication extends Application {
      */
     public static Context getAppContext() {
         return mAppContext;
+    }
+
+    /**
+     * 获取用于检测特定上下文环境中发生内存泄露的检测器
+     * @param context 要检测内存泄露发生地所在的上下文环境.
+     *                如果要检测 Activity中的内存泄露, 就用 Activity调用该方法并将该参数赋值为 this;
+     *                如果要检测 Fragment中的内存泄露, 就用 Fragment调用该方法并将该参数赋值为 getActivity().
+     * @return 内存泄露的检测器
+     */
+    public static RefWatcher getRefWatcher(Context context) {
+        MyApplication application = (MyApplication) context.getApplicationContext();
+        return application.mRefWatcher;
     }
 }
