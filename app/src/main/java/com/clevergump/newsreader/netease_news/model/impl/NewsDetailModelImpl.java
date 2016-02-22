@@ -24,7 +24,7 @@ public class NewsDetailModelImpl implements INewsDetailModel {
 
     @Override
     public void requestNewsDetail(Context context, String docid) {
-        new GetNewsDetailTask(context, docid).execute();
+        new GetNewsDetailTask(context, docid).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     /**
