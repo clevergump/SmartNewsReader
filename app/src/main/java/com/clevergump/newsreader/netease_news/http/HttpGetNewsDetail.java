@@ -1,6 +1,7 @@
 package com.clevergump.newsreader.netease_news.http;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.android.volley.Request;
@@ -19,6 +20,7 @@ import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONObject;
 
+import java.lang.ref.WeakReference;
 import java.util.Map;
 
 /**
@@ -29,13 +31,13 @@ import java.util.Map;
  */
 public class HttpGetNewsDetail extends HttpBase {
 
-    private final String TAG = getClass().getSimpleName();
+    private static final String TAG = HttpBase.class.getSimpleName();
 
-    private String mDocid;
+    private static String mDocid;
     private String mNewsDetailUrl;
 
-    public HttpGetNewsDetail(Context bContext, String docid) {
-        super(bContext);
+    public HttpGetNewsDetail(Context context, String docid) {
+        super(context);
         if (TextUtils.isEmpty(docid)) {
             throw new IllegalArgumentException(docid + " == null or contains no characters");
         }
@@ -45,26 +47,11 @@ public class HttpGetNewsDetail extends HttpBase {
 
     @Override
     protected Request getRequest() {
+        if (mContextWeakRef == null) {
+            throw new IllegalStateException("mContextWeakRef has not been initialized.");
+        }
         Request request = new JsonObjectRequest(Request.Method.GET, mNewsDetailUrl, null,
-            new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject jsonObject) {
-                    LogUtils.i(TAG, jsonObject.toString());
-                    NeteaseNewsDetail newsDetail = parseResponseData(jsonObject, mDocid);
-                    BaseNewsDetailEvent event;
-                    // 如果从服务器获取到的最新的新闻详情数据不为null
-                    if (newsDetail != null) {
-                        // 将从服务器获取到的最新的新闻详情数据插入到数据库中
-                        new NewsDetailDbInsertTask(bContext, newsDetail).execute();
-                        event = new OnGetNewsDetailEvent(mDocid, newsDetail);
-                    }
-                    // 如果从服务器获取到的最新的新闻详情数据为null, 则发送网络异常的事件.
-                    else {
-                        event = new NetworkFailsNewsDetailEvent(mDocid);
-                    }
-                    EventBusUtils.post(event);
-                }
-            }, new Response.ErrorListener() {
+            new GetNewsDetailResponseListener(mContextWeakRef.get()), new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
                 // 发送网络异常的事件.
@@ -76,12 +63,46 @@ public class HttpGetNewsDetail extends HttpBase {
     }
 
     /**
+     * Volley的 Response.Listener的实现类. 设计成静态内部类, 并结合WeakReference, 可避免内存泄露(具体来说,
+     * 就是可以避免因隐式地持有外部类HttpGetNewsDetail的引用, 外部类 HttpGetNewsDetail又持有 Context
+     * (这里就是指 NeteaseNewsDetailActivity)的引用, 导致在 NeteaseNewsDetailActivity 被打开又迅速关闭后,
+     * 由于Volley的网络请求仍在进行中而导致 NeteaseNewsDetailActivity 的对象被泄露.
+     */
+    private static class GetNewsDetailResponseListener implements Response.Listener<JSONObject> {
+
+        private WeakReference<Context> contextWeakRef;
+
+        public GetNewsDetailResponseListener(Context context) {
+            contextWeakRef = new WeakReference<Context>(context);
+        }
+
+        @Override
+        public void onResponse(JSONObject jsonObject) {
+            LogUtils.i(TAG, jsonObject.toString());
+            NeteaseNewsDetail newsDetail = parseResponseData(jsonObject, mDocid);
+            BaseNewsDetailEvent event;
+            // 如果从服务器获取到的最新的新闻详情数据不为null
+            if (contextWeakRef != null && newsDetail != null) {
+                Context context = contextWeakRef.get();
+                // 将从服务器获取到的最新的新闻详情数据插入到数据库中
+                new NewsDetailDbInsertTask(context, newsDetail).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                event = new OnGetNewsDetailEvent(mDocid, newsDetail);
+            }
+            // 如果从服务器获取到的最新的新闻详情数据为null, 则发送网络异常的事件.
+            else {
+                event = new NetworkFailsNewsDetailEvent(mDocid);
+            }
+            EventBusUtils.post(event);
+        }
+    }
+
+    /**
      * 解析获取到的json形式的响应数据
      * @param jsonObject
      * @param docid
      * @return
      */
-    private NeteaseNewsDetail parseResponseData(JSONObject jsonObject, String docid) {
+    private static NeteaseNewsDetail parseResponseData(JSONObject jsonObject, String docid) {
         Map<String, NeteaseNewsDetail> map = GsonFactory.getGson().fromJson(jsonObject.toString(),
                 new TypeToken<Map<String, NeteaseNewsDetail>>() {
                 }.getType());

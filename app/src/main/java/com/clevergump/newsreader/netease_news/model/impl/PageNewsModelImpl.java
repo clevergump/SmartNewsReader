@@ -136,6 +136,7 @@ public class PageNewsModelImpl implements IPageNewsModel {
         // 只有需要加载缓存数据时, 才会去获取缓存数据, 页码为0不代表就一定要加载缓存, 因为也可能是使用了下拉刷新
         // 导致数据需要完全重新加载而请求第0页的数据, 但这时是不需要加载缓存的.
         if (shouldLoadCache) {
+            // 使用AsyncTask自带的线程池.
             new GetNewsListFromCacheTask(newsTypeId, pageNumber).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
 

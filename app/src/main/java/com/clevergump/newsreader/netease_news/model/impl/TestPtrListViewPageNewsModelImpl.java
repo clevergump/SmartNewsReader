@@ -33,6 +33,7 @@ public class TestPtrListViewPageNewsModelImpl implements IPageNewsModel {
                                 boolean shouldLoadCache) {
         this.mNewsTypeId = newsTypeId;
         String newsTabName = NewsFragmentManager.getInstance().getNewsTabName(newsTypeId);
+        // 使用AsyncTask自带的线程池.
         new TestRefreshingTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, newsTabName, pageNumber);
     }
 

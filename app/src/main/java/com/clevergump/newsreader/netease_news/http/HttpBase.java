@@ -6,6 +6,8 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 
+import java.lang.ref.WeakReference;
+
 /**
  * @author zhangzhiyi
  * @version 1.0
@@ -13,16 +15,19 @@ import com.android.volley.toolbox.Volley;
  * @projectName NewsReader
  */
 public abstract class HttpBase {
-    protected final Context bContext;
+    protected WeakReference<Context> mContextWeakRef;
 
-    public HttpBase(Context bContext) {
-        this.bContext = bContext;
+    public HttpBase(Context context) {
+        mContextWeakRef = new WeakReference<Context>(context);
     }
 
-    public void request(){
-        RequestQueue queue = Volley.newRequestQueue(bContext);
-        Request request = getRequest();
-        queue.add(request);
+    public void request() {
+        if (mContextWeakRef != null) {
+            Context context = mContextWeakRef.get();
+            RequestQueue queue = Volley.newRequestQueue(context);
+            Request request = getRequest();
+            queue.add(request);
+        }
     }
 
     protected abstract Request getRequest();

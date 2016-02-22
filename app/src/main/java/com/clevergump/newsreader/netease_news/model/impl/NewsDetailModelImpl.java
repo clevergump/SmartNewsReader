@@ -24,6 +24,7 @@ public class NewsDetailModelImpl implements INewsDetailModel {
 
     @Override
     public void requestNewsDetail(Context context, String docid) {
+        // 使用AsyncTask自带的线程池.
         new GetNewsDetailTask(context, docid).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
