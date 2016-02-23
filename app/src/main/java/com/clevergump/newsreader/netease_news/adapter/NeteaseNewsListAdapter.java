@@ -36,8 +36,6 @@ public class NeteaseNewsListAdapter extends BaseAdapter {
     private LayoutInflater mInflater;
     // 新闻数据的list
     private List<NeteaseNewsItem> mNeteaseNewsItems;
-//    // 被点击的那个新闻条目的docid.
-//    private String mClickedItemDocId;
 
     // 各个已被成功查看的新闻条目的docId所组成的set
     private Set<String> mClickedItemDocIds = new TreeSet<String>();
@@ -85,6 +83,14 @@ public class NeteaseNewsListAdapter extends BaseAdapter {
                 holder.tvTitle.setText(neteaseNewsItem.title);
                 // 设置新闻标题文字的颜色
                 setNewsItemTitleTextColor(neteaseNewsItem, holder);
+
+                /**
+                 *  1. 这里将标题的TextView设置为 convertView的tag, 目的是为了处理新闻条目阅读后需要根据
+                 *  这里设定的tag找到被点击条目的标题TextView, 然后才能设置其颜色为灰色(表示已读过).
+                 *
+                 *  2. View.setTag(int key, Object tag)方法的参数key, 只能是该APP内的资源id, 不能是自己
+                 *  随意设定的一个int值, 否则会报异常. 这样设计的目的是为了保证key的唯一性.
+                 */
                 convertView.setTag(R.id.tv_news_item_title, holder.tvTitle);
                 holder.tvDigest.setText(neteaseNewsItem.digest);
                 displayImage(holder.ivImageForOneImageItem, neteaseNewsItem.imgsrc);
@@ -104,6 +110,14 @@ public class NeteaseNewsListAdapter extends BaseAdapter {
                 holder.tvTitle.setText(neteaseNewsItem.title);
                 // 设置新闻标题文字的颜色
                 setNewsItemTitleTextColor(neteaseNewsItem, holder);
+
+                /**
+                 *  1. 这里将标题的TextView设置为 convertView的tag, 目的是为了处理新闻条目阅读后需要根据
+                 *  这里设定的tag找到被点击条目的标题TextView, 然后才能设置其颜色为灰色(表示已读过).
+                 *
+                 *  2. View.setTag(int key, Object tag)方法的参数key, 只能是该APP内的资源id, 不能是自己
+                 *  随意设定的一个int值, 否则会报异常. 这样设计的目的是为了保证key的唯一性.
+                 */
                 convertView.setTag(R.id.tv_news_item_title, holder.tvTitle);
                 displayImage(holder.ivLeft, neteaseNewsItem.imgsrc);
                 displayImage(holder.ivMiddle, neteaseNewsItem.imgExtraSrc0);
@@ -133,14 +147,19 @@ public class NeteaseNewsListAdapter extends BaseAdapter {
      */
     private void displayImage(ImageView iv, String imgUrl) {
         ImageLoaderUtils.displayImage(imgUrl, iv, null, null);
-//        ImageLoaderUtils.displayImage(imgUrl, iv, null, null);
     }
 
-    public void onNewsItemHasBeenRead(String clickedItemDocId) {
-//        mHasNewsItemBeenRead = true;
+    public void updataBeenReadFlagInDb(String clickedItemDocId) {
         mClickedItemDocIds.add(clickedItemDocId);
 
+        /**
+         * 如果这里使用 notifyDataSetChanged(), 那么效果将是所有可见的条目都将被重新加载一次, 那么看到的现象
+         * 将是: 当关闭某个新闻详情页回到新闻ListView页面时, 会发现ListView的每一个item的图片都将闪烁一次,
+         * 这样的效果显然不好, 其实只需要设置被阅读的那个item的标题TextView的颜色为灰色即可.
+         */
 //        notifyDataSetChanged();
+
+        // 更新数据库中已读过的item的阅读状态标志位的值.
         new UpdateNewsItemToHasReadStateTask(clickedItemDocId).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 

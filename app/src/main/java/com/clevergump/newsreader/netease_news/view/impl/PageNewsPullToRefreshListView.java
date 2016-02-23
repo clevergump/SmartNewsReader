@@ -134,10 +134,15 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
      * 被点击的那个item的索引. 每当点击某个新闻item打开了该item对应的新闻详情页, 就需要设置该变量为
      * 被点击的那个item的位置. 当关闭了新闻详情页回到新闻 ListView页面时, 如果 onActivityResult()方法
      * 返回的 resultCode为 RESULT_OK, 则将该变量对应的那个item的 View的标题颜色更新为灰色, 然后再将
-     * 该变量复位到 NO_ITEM_CLICKED 值; 如果onActivityResult()方法返回的 resultCode为 RESULT_CANCEL,
-     * 则直接将该变量复位到 NO_ITEM_CLICKED 值, 而不更新那个item的标题颜色.
+     * 该变量复位到 ITEM_CLICK_RESETED_POSITION 值; 如果 onActivityResult()方法返回的 resultCode为
+     * RESULT_CANCEL, 则直接将该变量复位到 ITEM_CLICK_RESETED_POSITION 值, 而不更新那个item的标题颜色.
      */
     private int mClickedItemPosition = ITEM_CLICK_RESETED_POSITION;
+
+    /**
+     * 被阅读过的新闻item的标题颜色(这里使用的是灰色). 定义该变量主要是为了避免多次从colors.xml
+     * 文件中重复获取这一灰色的数值, 属于性能优化的操作.
+     */
     private int mBeenReadItemTitleColor = -1;
 
 
@@ -453,49 +458,67 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
 
     @Override
     public void onNewsItemHasBeenRead() {
-        mNewsListAdapter.onNewsItemHasBeenRead(mClickedItemDocid);
-        if (mClickedItemPosition != ITEM_CLICK_RESETED_POSITION) {
-            int firstVisiblePosition = mLvNewsInternal.getFirstVisiblePosition();
-            int lastVisiblePosition = mLvNewsInternal.getLastVisiblePosition();
-            for (int i = firstVisiblePosition; i <= lastVisiblePosition; i++) {
-                Object item = mNewsListAdapter.getItem(i);
-                if (item instanceof NeteaseNewsItem && mClickedItemDocid.equals(((NeteaseNewsItem)item).docid)) {
-                    View newsListItemView = mLvNewsInternal.getChildAt(i - firstVisiblePosition + 1);
-                    TextView tvTitle = (TextView) newsListItemView.getTag(R.id.tv_news_item_title);
+        // 更新数据库中"是否已读"的标志位, 便于下次加载时直接显示为灰色.
+        mNewsListAdapter.updataBeenReadFlagInDb(mClickedItemDocid);
 
-                    /**
-                     * 下面两种获取标题TextView的方法都是错误的.
-                     * 第一种: 不能用findViewById(), 因为没有指定布局文件, 所以得到的TextView为null.
-                     * 第二种: setTag(int key, Object tag) 是个好主意. 但是参数key只能是系统内部的相关资源id,
-                     *        而不能随意取值. 否则会报异常:
-                     *        "IllegalArgumentException: The key must be an application-specific resource id."
-                     *        其实系统这样设计是为了保证key的唯一性, 所以就根据该异常的提示使用R.id.XXX作为key.
-                     */
-//                    TextView tvTitle = (TextView) itemView.findViewById(R.id.tv_news_item_title);
-//                    TextView tvTitle = (TextView) itemView.getTag(Constant.KEY_NEWS_LIST_ITEM_TITLE);
-                    if (mBeenReadItemTitleColor == -1) {
-                        mBeenReadItemTitleColor = mActivity.getResources().getColor(R.color.color_netease_news_list_item_title_has_read);
-                    }
-                    // setTextColor()方法的源码内部已经包含了invalidate()的步骤了, 所以我们无需手动调用invalidate()方法.
-                    tvTitle.setTextColor(mBeenReadItemTitleColor);
-                    resetClickedItemPosition();
-                    break;
+        // 更新当前被点击的item的标题颜色为灰色.
+
+        if (mClickedItemPosition == ITEM_CLICK_RESETED_POSITION) {
+            return;
+        }
+
+        int firstVisiblePosition = mLvNewsInternal.getFirstVisiblePosition();
+        int lastVisiblePosition = mLvNewsInternal.getLastVisiblePosition();
+        for (int i = firstVisiblePosition; i <= lastVisiblePosition; i++) {
+            Object item = mNewsListAdapter.getItem(i);
+            if (item instanceof NeteaseNewsItem && mClickedItemDocid.equals(((NeteaseNewsItem)item).docid)) {
+                // 从ListView中获取被点击的那个item的View
+                View newsItemView = mLvNewsInternal.getChildAt(i - firstVisiblePosition + 1);
+
+                /**
+                 * 下面两种获取标题TextView的方法都是错误的:
+                 *   TextView tvTitle = (TextView) newsItemView.findViewById(R.id.tv_news_item_title);
+                 *   TextView tvTitle = (TextView) newsItemView.getTag(Constant.KEY_NEWS_LIST_ITEM_TITLE);
+                 *
+                 * 第一种: 不能用findViewById(), 因为没有指定布局文件, 所以得到的TextView为null.
+                 * 第二种: setTag(int key, Object tag) 是个好主意. 但是参数key只能是系统内部的相关资源id,
+                 *        而不能随意取值. 否则会报异常:
+                 *        "IllegalArgumentException: The key must be an application-specific resource id."
+                 *        其实系统这样设计是为了保证key的唯一性, 所以就根据该异常的提示使用R.id.XXX作为key.
+                 *
+                 * 正确的方法应该是:
+                 *   TextView tvTitle = (TextView) newsItemView.getTag(R.id.tv_news_item_title);
+                 * 其中, setTag(int key, Object tag)和 getTag(int key) 方法的参数key要求必须是该APP
+                 * 内定义的资源id, 不能自由设定, 这样是为了保证 key的唯一性.
+                 */
+//                    TextView tvTitle = (TextView) newsItemView.findViewById(R.id.tv_news_item_title);
+//                    TextView tvTitle = (TextView) newsItemView.getTag(Constant.KEY_NEWS_LIST_ITEM_TITLE);
+
+                TextView tvTitle = (TextView) newsItemView.getTag(R.id.tv_news_item_title);
+
+                /**
+                 * 只需获取一次该颜色值. 后续如果再遇到阅读过的item需要让其标题变为灰色的情况时,
+                 * 直接将该变量拿来用即可, 而无需再次从colors.xml中获取该颜色值.
+                 */
+                if (mBeenReadItemTitleColor == -1) {
+                    mBeenReadItemTitleColor = mActivity.getResources().getColor(R.color.color_netease_news_list_item_title_has_read);
                 }
+                // setTextColor()方法的源码内部已经包含了invalidate()的步骤了, 所以我们无需手动调用invalidate()方法.
+                tvTitle.setTextColor(mBeenReadItemTitleColor);
+                // 将被点击的item位置 mClickedItemPosition 进行复位, 以避免对接下来点击其他item造成干扰.
+                resetClickedItemPosition();
+                break;
             }
         }
+
     }
 
+    /**
+     * 将被点击的item位置 mClickedItemPosition 进行复位
+     */
     private void resetClickedItemPosition() {
         mClickedItemPosition = ITEM_CLICK_RESETED_POSITION;
     }
-
-//    @Override
-//    public void setShouldRefreshWholePageData(boolean shouldRefreshWholePageData) {
-//        mShouldRefreshWholePageData = shouldRefreshWholePageData;
-//        // 下拉刷新, 以及翻页加载时发现先前页的数据已经太久远了, 这些情况都需要完全替换掉现有数据.
-//        mNextDataIncomingType = shouldRefreshWholePageData ?
-//                NextDataIncomingType.REPLACE : NextDataIncomingType.APPEND;
-//    }
 
     @Override
     public void showLoadingView() {
