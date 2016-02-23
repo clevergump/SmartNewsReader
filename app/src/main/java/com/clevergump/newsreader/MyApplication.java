@@ -98,7 +98,7 @@ public class MyApplication extends Application {
             e.printStackTrace();
         }
         // 配置是否打开UIL的调试开关
-        if (Constant.DEBUG) {
+        if (Constant.DEBUG && configBuilder != null) {
             configBuilder.writeDebugLogs();
         }
         ImageLoaderConfiguration config = configBuilder.build();

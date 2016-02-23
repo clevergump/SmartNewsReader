@@ -85,6 +85,7 @@ public class NeteaseNewsListAdapter extends BaseAdapter {
                 holder.tvTitle.setText(neteaseNewsItem.title);
                 // 设置新闻标题文字的颜色
                 setNewsItemTitleTextColor(neteaseNewsItem, holder);
+                convertView.setTag(R.id.tv_news_item_title, holder.tvTitle);
                 holder.tvDigest.setText(neteaseNewsItem.digest);
                 displayImage(holder.ivImageForOneImageItem, neteaseNewsItem.imgsrc);
                 break;
@@ -103,6 +104,7 @@ public class NeteaseNewsListAdapter extends BaseAdapter {
                 holder.tvTitle.setText(neteaseNewsItem.title);
                 // 设置新闻标题文字的颜色
                 setNewsItemTitleTextColor(neteaseNewsItem, holder);
+                convertView.setTag(R.id.tv_news_item_title, holder.tvTitle);
                 displayImage(holder.ivLeft, neteaseNewsItem.imgsrc);
                 displayImage(holder.ivMiddle, neteaseNewsItem.imgExtraSrc0);
                 displayImage(holder.ivRight, neteaseNewsItem.imgExtraSrc1);
@@ -120,7 +122,7 @@ public class NeteaseNewsListAdapter extends BaseAdapter {
         if (mClickedItemDocIds.contains(neteaseNewsItem.docid)) {
             holder.tvTitle.setTextColor(mContext.getResources().getColor(R.color.color_netease_news_list_item_title_has_read));
         } else {
-            new GetNewsItemReadStateTask(neteaseNewsItem.docid, holder).execute();
+            new GetNewsItemReadStateTask(neteaseNewsItem.docid, holder).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
     }
 
@@ -137,8 +139,9 @@ public class NeteaseNewsListAdapter extends BaseAdapter {
     public void onNewsItemHasBeenRead(String clickedItemDocId) {
 //        mHasNewsItemBeenRead = true;
         mClickedItemDocIds.add(clickedItemDocId);
-        notifyDataSetChanged();
-        new UpdateNewsItemToHasReadStateTask(clickedItemDocId).execute();
+
+//        notifyDataSetChanged();
+        new UpdateNewsItemToHasReadStateTask(clickedItemDocId).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     private static class ViewHolder {

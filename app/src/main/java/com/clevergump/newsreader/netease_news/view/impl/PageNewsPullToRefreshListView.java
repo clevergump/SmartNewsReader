@@ -49,9 +49,10 @@ import java.util.List;
  */
 public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
         implements OnScrollListener, PullToRefreshBase.OnRefreshListener<ListView>,
-        AdapterView.OnItemClickListener,Runnable {
+        AdapterView.OnItemClickListener, Runnable {
 
-
+    // 表示没有条目被点击, 或者点击的条目的标题都已经更新为灰色了.
+    private static final int ITEM_CLICK_RESETED_POSITION = -1;
     /******************** 常量 *************************/
     private final String TAG = getClass().getSimpleName();
     // 最大页码数, 不是总页数.
@@ -116,8 +117,6 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
     // 接下来要加载的页面, 下一个页面
     private int mNextPageNumber = 1;
     private int mTempCurrPageNumber;
-    // 当前打开的正在阅读的那篇新闻详情所对应的新闻条目在ListView中的position.
-    private int mCurrReadingNewsPosition;
 
     // 新闻ListView中显示出来的条目总数.
     private int mLvNewsTotalItemCount;
@@ -129,7 +128,17 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
     // 下拉刷新时用于显示一系列文字描述以及刷新logo的layout
     private ILoadingLayout mPtrHeaderLoadingLayout;
     // 当前被点击的那个新闻条目的docid
-    private String mCurrClickedItemDocid;
+    private String mClickedItemDocid;
+
+    /**
+     * 被点击的那个item的索引. 每当点击某个新闻item打开了该item对应的新闻详情页, 就需要设置该变量为
+     * 被点击的那个item的位置. 当关闭了新闻详情页回到新闻 ListView页面时, 如果 onActivityResult()方法
+     * 返回的 resultCode为 RESULT_OK, 则将该变量对应的那个item的 View的标题颜色更新为灰色, 然后再将
+     * 该变量复位到 NO_ITEM_CLICKED 值; 如果onActivityResult()方法返回的 resultCode为 RESULT_CANCEL,
+     * 则直接将该变量复位到 NO_ITEM_CLICKED 值, 而不更新那个item的标题颜色.
+     */
+    private int mClickedItemPosition = ITEM_CLICK_RESETED_POSITION;
+    private int mBeenReadItemTitleColor = -1;
 
 
     /****************************************************/
@@ -218,8 +227,8 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
         if (lastRefreshTimeMillis != LAST_UPDATE_TIME_INIT_VALUE) {
             String lastUpdateTimeDesc = DateTimeUtils.getLastUpdateTimeDesc(lastRefreshTimeMillis);
             mPtrHeaderLoadingLayout.setLastUpdatedLabel(lastUpdateTimeDesc);
-            LogUtils.i(mCurrNewsTabName+"---上次更新时间:" + DateTimeUtils.getFormattedTime(lastRefreshTimeMillis)
-                    +", 毫秒: "+lastRefreshTimeMillis+", "+ lastUpdateTimeDesc);
+            LogUtils.i(mCurrNewsTabName + "---上次更新时间:" + DateTimeUtils.getFormattedTime(lastRefreshTimeMillis)
+                    + ", 毫秒: " + lastRefreshTimeMillis + ", " + lastUpdateTimeDesc);
         } else {
             mPtrHeaderLoadingLayout.setLastUpdatedLabel("先前未曾更新过");
         }
@@ -236,8 +245,7 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
         mLvNewsInternal.addFooterView(mVgFooterViewContainer);
         if (Constant.isTestPtrListViewOnly) {
             mPtrLvNews.setAdapter(mTestArrayAdapter);
-        }
-        else {
+        } else {
             mPtrLvNews.setAdapter(mNewsListAdapter);
         }
         mLvNewsInternal.removeFooterView(mVgFooterViewContainer);
@@ -276,7 +284,7 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 //        ToastUtils.showDebug("position = " + position + ", id = " + id);
-        mCurrReadingNewsPosition = position;
+
 //        ToastUtils.showDebug("mNewsListAdapter.getCount() = " + mNewsListAdapter.getCount());
 
         // 如果点击的是最底部的"没有更多数据了", 则不会响应点击事件.
@@ -289,11 +297,12 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
 
         // TODO: 待思考, 为什么是 position-1 呢? position-1 其实和参数 id的数值是相同的, 所以 id的含义是什么 ?
         int itemViewType = mNewsListAdapter.getItemViewType(position - 1);
-        mCurrClickedItemDocid = ((NeteaseNewsItem) mNewsListAdapter.getItem(position - 1)).docid;
+        mClickedItemPosition = position;
+        mClickedItemDocid = ((NeteaseNewsItem) mNewsListAdapter.getItem(position - 1)).docid;
 //        ToastUtils.showDebug("点击的新闻条目的 docid = " + (mCurrClickedItemDocid == null ? "null" : mCurrClickedItemDocid));
         switch (itemViewType) {
             case NeteaseNewsBase.NEWS_ITEM_VIEW_TYPE_ONE_IMAGE:
-                mActivity.launchNewsDetailActivity(this, mCurrClickedItemDocid);
+                mActivity.launchNewsDetailActivity(this, mClickedItemDocid);
                 break;
             case NeteaseNewsBase.NEWS_ITEM_VIEW_TYPE_THREE_IMAGE:
                 String title = ((NeteaseNewsItem) mNewsListAdapter.getItem(position - 1)).title;
@@ -305,7 +314,7 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
                 imageUrls.add(imgExtraSrc0);
                 imageUrls.add(imgExtraSrc1);
                 // TODO: 启动Activity的参数是否合适?
-                mActivity.launchImageDetailActivity(this, mCurrClickedItemDocid, title, imageUrls);
+                mActivity.launchImageDetailActivity(this, mClickedItemDocid, title, imageUrls);
                 break;
         }
     }
@@ -444,7 +453,40 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
 
     @Override
     public void onNewsItemHasBeenRead() {
-        mNewsListAdapter.onNewsItemHasBeenRead(mCurrClickedItemDocid);
+        mNewsListAdapter.onNewsItemHasBeenRead(mClickedItemDocid);
+        if (mClickedItemPosition != ITEM_CLICK_RESETED_POSITION) {
+            int firstVisiblePosition = mLvNewsInternal.getFirstVisiblePosition();
+            int lastVisiblePosition = mLvNewsInternal.getLastVisiblePosition();
+            for (int i = firstVisiblePosition; i <= lastVisiblePosition; i++) {
+                Object item = mNewsListAdapter.getItem(i);
+                if (item instanceof NeteaseNewsItem && mClickedItemDocid.equals(((NeteaseNewsItem)item).docid)) {
+                    View newsListItemView = mLvNewsInternal.getChildAt(i - firstVisiblePosition + 1);
+                    TextView tvTitle = (TextView) newsListItemView.getTag(R.id.tv_news_item_title);
+
+                    /**
+                     * 下面两种获取标题TextView的方法都是错误的.
+                     * 第一种: 不能用findViewById(), 因为没有指定布局文件, 所以得到的TextView为null.
+                     * 第二种: setTag(int key, Object tag) 是个好主意. 但是参数key只能是系统内部的相关资源id,
+                     *        而不能随意取值. 否则会报异常:
+                     *        "IllegalArgumentException: The key must be an application-specific resource id."
+                     *        其实系统这样设计是为了保证key的唯一性, 所以就根据该异常的提示使用R.id.XXX作为key.
+                     */
+//                    TextView tvTitle = (TextView) itemView.findViewById(R.id.tv_news_item_title);
+//                    TextView tvTitle = (TextView) itemView.getTag(Constant.KEY_NEWS_LIST_ITEM_TITLE);
+                    if (mBeenReadItemTitleColor == -1) {
+                        mBeenReadItemTitleColor = mActivity.getResources().getColor(R.color.color_netease_news_list_item_title_has_read);
+                    }
+                    // setTextColor()方法的源码内部已经包含了invalidate()的步骤了, 所以我们无需手动调用invalidate()方法.
+                    tvTitle.setTextColor(mBeenReadItemTitleColor);
+                    resetClickedItemPosition();
+                    break;
+                }
+            }
+        }
+    }
+
+    private void resetClickedItemPosition() {
+        mClickedItemPosition = ITEM_CLICK_RESETED_POSITION;
     }
 
 //    @Override
@@ -471,8 +513,7 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
     public void removeLoadingView() {
         if (mProgressBarLoading.getVisibility() == View.VISIBLE) {
             mProgressBarLoading.setVisibility(View.GONE);
-        }
-        else {
+        } else {
             mLvNewsInternal.removeFooterView(mVgFooterViewContainer);
         }
     }
@@ -508,8 +549,7 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
                     mPageNewsListPresenter.requestPageNews(mCurrNewsTabName, true, true);
                 }
             });
-        }
-        else {
+        } else {
             mLoadFailPageContentView.setVisibility(View.VISIBLE);
         }
     }
@@ -677,13 +717,13 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
         mLvNewsTotalItemCount = totalItemCount;
         mLvNewsLastVisibleItem = firstVisibleItem + visibleItemCount;
-        LogUtils.i(TAG, "lastVisibleItem = "+mLvNewsLastVisibleItem + ", visibleItemCount = "+mLvNewsTotalItemCount);
+        LogUtils.i(TAG, "lastVisibleItem = " + mLvNewsLastVisibleItem + ", visibleItemCount = " + mLvNewsTotalItemCount);
     }
 
     @Override
     public void onCreate() {
         // 保险起见, 多加一句判断.
-        if(!EventBusUtils.isRegistered(this)) {
+        if (!EventBusUtils.isRegistered(this)) {
             EventBusUtils.registerEventBus(this);
         }
     }
