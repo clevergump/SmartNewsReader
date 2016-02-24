@@ -80,19 +80,26 @@ public class HttpGetNewsDetail extends HttpBase {
         public void onResponse(JSONObject jsonObject) {
             LogUtils.i(TAG, jsonObject.toString());
             NeteaseNewsDetail newsDetail = parseResponseData(jsonObject, mDocid);
-            BaseNewsDetailEvent event;
+            BaseNewsDetailEvent event = null;
             // 如果从服务器获取到的最新的新闻详情数据不为null
-            if (contextWeakRef != null && newsDetail != null) {
+            if (newsDetail != null) {
                 Context context = contextWeakRef.get();
-                // 将从服务器获取到的最新的新闻详情数据插入到数据库中
-                new NewsDetailDbInsertTask(context, newsDetail).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                event = new OnGetNewsDetailEvent(mDocid, newsDetail);
+                // 因为弱引用所引用的对象, 存在被GC的可能性, 所以每次获取到该引用所引用的对象后,
+                // 都应该做非null判断. 只有在非null(即: 该对象还未被GC)时才能执行后续操作.
+                if (context != null) {
+                    // 将从服务器获取到的最新的新闻详情数据插入到数据库中
+                    new NewsDetailDbInsertTask(context, newsDetail).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    event = new OnGetNewsDetailEvent(mDocid, newsDetail);
+                }
             }
             // 如果从服务器获取到的最新的新闻详情数据为null, 则发送网络异常的事件.
             else {
                 event = new NetworkFailsNewsDetailEvent(mDocid);
             }
-            EventBusUtils.post(event);
+
+            if (event != null) {
+                EventBusUtils.post(event);
+            }
         }
     }
 
