@@ -86,7 +86,6 @@ public class NeteaseNewsDetailActivity extends BaseActivity implements View.OnCl
     protected void onDestroy() {
         clear();
         super.onDestroy();
-
     }
 
     @Override
