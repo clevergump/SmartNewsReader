@@ -109,7 +109,7 @@ public class NeteaseNewsListActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        LogUtils.i(getName() + "onDestroy");
+        LogUtils.i(getName() + "clear");
         super.onDestroy();
     }
 

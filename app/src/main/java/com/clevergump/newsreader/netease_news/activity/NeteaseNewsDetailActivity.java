@@ -17,7 +17,7 @@ import com.clevergump.newsreader.netease_news.event.impl.NetworkFailsNewsDetailE
 import com.clevergump.newsreader.netease_news.event.impl.OnGetNewsDetailEvent;
 import com.clevergump.newsreader.netease_news.event.impl.base.BaseNewsDetailEvent;
 import com.clevergump.newsreader.netease_news.model.impl.NewsDetailModelImpl;
-import com.clevergump.newsreader.netease_news.presenter.NewsDetailPresenter;
+import com.clevergump.newsreader.netease_news.presenter.impl.NewsDetailPresenter;
 import com.clevergump.newsreader.netease_news.utils.EventBusUtils;
 import com.clevergump.newsreader.netease_news.utils.ImageLoaderUtils;
 import com.clevergump.newsreader.netease_news.utils.ToastUtils;
@@ -84,14 +84,23 @@ public class NeteaseNewsDetailActivity extends BaseActivity implements View.OnCl
 
     @Override
     protected void onDestroy() {
+        clear();
         super.onDestroy();
-        EventBusUtils.unregisterEventBus(this);
+
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         mNewsDetailPresenter.requestNewsDetail(this, mDocid);
+    }
+
+    @Override
+    public void clear() {
+        EventBusUtils.unregisterEventBus(this);
+        if (mNewsDetailPresenter != null) {
+            mNewsDetailPresenter.clear();
+        }
     }
 
     @Override

@@ -1,8 +1,9 @@
-package com.clevergump.newsreader.netease_news.presenter;
+package com.clevergump.newsreader.netease_news.presenter.impl;
 
 import android.content.Context;
 
 import com.clevergump.newsreader.netease_news.model.INewsDetailModel;
+import com.clevergump.newsreader.netease_news.presenter.IPresenter;
 import com.clevergump.newsreader.netease_news.view.INewsDetailView;
 
 /**
@@ -11,7 +12,7 @@ import com.clevergump.newsreader.netease_news.view.INewsDetailView;
  * @createTime 2015/11/9 20:04
  * @projectName NewsReader
  */
-public class NewsDetailPresenter {
+public class NewsDetailPresenter implements IPresenter {
     private INewsDetailView iView;
     private INewsDetailModel iModel;
 
@@ -54,5 +55,10 @@ public class NewsDetailPresenter {
     public void handleUIWhenLoadingFails() {
         iView.hideLoadingUI();
         iView.showLoadFailsUI();
+    }
+
+    @Override
+    public void clear() {
+
     }
 }

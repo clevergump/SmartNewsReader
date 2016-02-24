@@ -19,7 +19,7 @@ import com.clevergump.newsreader.netease_news.dao.table.news_list.impl.NeteaseNe
 import com.clevergump.newsreader.netease_news.fragment.manager.NewsFragmentManager;
 import com.clevergump.newsreader.netease_news.model.IPageNewsModel;
 import com.clevergump.newsreader.netease_news.model.impl.PageNewsModelImpl;
-import com.clevergump.newsreader.netease_news.presenter.PageNewsListPresenter;
+import com.clevergump.newsreader.netease_news.presenter.impl.PageNewsListPresenter;
 import com.clevergump.newsreader.netease_news.utils.LogUtils;
 import com.clevergump.newsreader.netease_news.view.IPageNewsView;
 import com.clevergump.newsreader.netease_news.view.impl.PageNewsPullToRefreshListView;
@@ -150,9 +150,13 @@ public class BaseNewsFragment extends Fragment {
 
     @Override
     public void onDestroy() {
-        LogUtils.i(getTabName() + "onDestroy");
+        LogUtils.i(getTabName() + "clear");
         super.onDestroy();
-        bPageNewsView.onDestroy();
+
+        // 这个onDestroy()的调用很有必要. 因为在该方法中可以执行"取消监听器的注册", 清理Handler发出
+        // 的所有 callbacks和messages, 取消所有正在执行的异步任务(如: AsyncTask), 关闭所有的
+        // Cursor/IO流/HttpURLConnection等.
+        bPageNewsView.clear();
     }
 
     @Override

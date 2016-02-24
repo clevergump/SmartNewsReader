@@ -8,7 +8,7 @@ package com.clevergump.newsreader.netease_news.view;
  * @createTime 2015/11/9 20:03
  * @projectName NewsReader
  */
-public interface INewsDetailView {
+public interface INewsDetailView extends IView {
     /**
      * 显示"正在加载中..."的界面
      */

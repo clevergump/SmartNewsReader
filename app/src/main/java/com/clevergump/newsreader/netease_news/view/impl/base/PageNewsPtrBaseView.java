@@ -1,5 +1,6 @@
 package com.clevergump.newsreader.netease_news.view.impl.base;
 
+import com.clevergump.newsreader.netease_news.presenter.impl.PageNewsListPresenter;
 import com.clevergump.newsreader.netease_news.view.IPageNewsView;
 
 /**
@@ -13,6 +14,19 @@ public abstract class PageNewsPtrBaseView implements IPageNewsView {
     protected PullingState bPullingState;
     // 新闻缓存查询的状态
     protected NewsCacheQueryState bNewsCacheQueryState;
+
+    protected PageNewsListPresenter mPageNewsListPresenter;
+
+    /**
+     * 执行相关清理工作
+     */
+    @Override
+    public void clear() {
+        // 在父类中统一规定, 该方法内必须执行Presenter的clear()方法.
+        if (mPageNewsListPresenter != null) {
+            mPageNewsListPresenter.clear();
+        }
+    }
 
     /**
      * 下拉刷新过程的几种状态

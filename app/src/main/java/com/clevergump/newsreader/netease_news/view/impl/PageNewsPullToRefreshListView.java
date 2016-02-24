@@ -27,7 +27,7 @@ import com.clevergump.newsreader.netease_news.event.impl.OnGetLatestNewsListEven
 import com.clevergump.newsreader.netease_news.event.impl.TestNewsListEvent;
 import com.clevergump.newsreader.netease_news.event.impl.base.BaseNewsListEvent;
 import com.clevergump.newsreader.netease_news.fragment.manager.NewsFragmentManager;
-import com.clevergump.newsreader.netease_news.presenter.PageNewsListPresenter;
+import com.clevergump.newsreader.netease_news.presenter.impl.PageNewsListPresenter;
 import com.clevergump.newsreader.netease_news.utils.DateTimeUtils;
 import com.clevergump.newsreader.netease_news.utils.EventBusUtils;
 import com.clevergump.newsreader.netease_news.utils.LogUtils;
@@ -87,9 +87,7 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
     private View mLoadFailPageContentView;
 
 
-
     /******************** 变量 **************************/
-    private PageNewsListPresenter mPageNewsListPresenter;
     private NeteaseNewsListActivity mActivity;
     private LayoutInflater mLayoutInflater;
     private NeteaseNewsListAdapter mNewsListAdapter;
@@ -752,8 +750,12 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
     }
 
     @Override
-    public void onDestroy() {
+    public void clear() {
+        // 这句话不能少.
+        super.clear();
         EventBusUtils.unregisterEventBus(this);
+        // 清理 MyHandler实例发送的所有的callbacks和messages.
+        MyHandler.getInstance().removeCallbacksAndMessages(null);
     }
 
     private enum NextDataIncomingType {

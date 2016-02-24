@@ -2,7 +2,7 @@ package com.clevergump.newsreader.netease_news.view;
 
 import android.view.View;
 
-import com.clevergump.newsreader.netease_news.presenter.PageNewsListPresenter;
+import com.clevergump.newsreader.netease_news.presenter.impl.PageNewsListPresenter;
 
 /**
  * 分页加载新闻数据的 UI视图接口类
@@ -12,7 +12,7 @@ import com.clevergump.newsreader.netease_news.presenter.PageNewsListPresenter;
  * @createTime 2015/11/9 20:02
  * @projectName NewsReader
  */
-public interface IPageNewsView {
+public interface IPageNewsView extends IView {
 
 
     void setPresenter(PageNewsListPresenter presenter);
@@ -47,7 +47,6 @@ public interface IPageNewsView {
 
     void onCreate();
 
-    void onDestroy();
 
     void initPullingState();
 

@@ -1,8 +1,9 @@
-package com.clevergump.newsreader.netease_news.presenter;
+package com.clevergump.newsreader.netease_news.presenter.impl;
 
 import android.os.Handler;
 
 import com.clevergump.newsreader.netease_news.model.IPageNewsModel;
+import com.clevergump.newsreader.netease_news.presenter.IPresenter;
 import com.clevergump.newsreader.netease_news.utils.ToastUtils;
 import com.clevergump.newsreader.netease_news.view.IPageNewsView;
 
@@ -12,7 +13,7 @@ import com.clevergump.newsreader.netease_news.view.IPageNewsView;
  * @createTime 2015/11/9 20:04
  * @projectName NewsReader
  */
-public class PageNewsListPresenter {
+public class PageNewsListPresenter implements IPresenter {
 
     private IPageNewsView iView;
     private IPageNewsModel iModel;
@@ -87,5 +88,14 @@ public class PageNewsListPresenter {
      */
     public void updateLastRefreshTime(String newsTabName) {
         iModel.updateLastRefreshTime(newsTabName);
+    }
+
+    /**
+     * 清理所有的callbacks和messages. 通常用于当一个Activity或Fragment作为IView持有了 Presenter的引用后,
+     * 当该Activity或Fragment被销毁时, 需要调用他们内部引用的该Presenter的该clear()方法.
+     */
+    @Override
+    public void clear() {
+        sLazyLoadHandler.removeCallbacksAndMessages(null);
     }
 }
