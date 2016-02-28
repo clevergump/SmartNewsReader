@@ -1,4 +1,4 @@
-package com.clevergump.newsreader.netease_news.asynctask;
+package com.clevergump.newsreader.netease_news.test;
 
 import android.os.AsyncTask;
 
