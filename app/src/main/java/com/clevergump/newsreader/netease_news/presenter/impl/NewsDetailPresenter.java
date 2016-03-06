@@ -2,6 +2,7 @@ package com.clevergump.newsreader.netease_news.presenter.impl;
 
 import android.content.Context;
 
+import com.clevergump.newsreader.netease_news.bean.NeteaseNewsDetail;
 import com.clevergump.newsreader.netease_news.model.INewsDetailModel;
 import com.clevergump.newsreader.netease_news.presenter.IPresenter;
 import com.clevergump.newsreader.netease_news.view.INewsDetailView;
@@ -38,7 +39,7 @@ public class NewsDetailPresenter implements IPresenter {
         iView.showLoadingUI();
         // 获取与给定的docid对应的新闻详情数据. 如果有缓存, 就直接用缓存里的数据;
         // 如果没有缓存, 才去加载网络上的数据.
-        iModel.requestNewsDetail(context, docid);
+        iModel.getNewsDetail(context, docid);
     }
 
     /**
@@ -59,6 +60,10 @@ public class NewsDetailPresenter implements IPresenter {
 
     @Override
     public void clear() {
+        iModel.clear();
+    }
 
+    public void putToCache(NeteaseNewsDetail newsDetail) {
+        iModel.putToCache(newsDetail);
     }
 }

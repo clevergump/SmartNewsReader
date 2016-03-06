@@ -1,7 +1,6 @@
 package com.clevergump.newsreader.netease_news.http;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.android.volley.Request;
@@ -9,7 +8,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.clevergump.newsreader.netease_news.bean.NeteaseNewsDetail;
-import com.clevergump.newsreader.netease_news.dao.asynctask.NewsDetailDbInsertTask;
 import com.clevergump.newsreader.netease_news.event.impl.NetworkFailsNewsDetailEvent;
 import com.clevergump.newsreader.netease_news.event.impl.OnGetNewsDetailEvent;
 import com.clevergump.newsreader.netease_news.event.impl.base.BaseNewsDetailEvent;
@@ -87,8 +85,6 @@ public class HttpGetNewsDetail extends HttpBase {
                 // 因为弱引用所引用的对象, 存在被GC的可能性, 所以每次获取到该引用所引用的对象后,
                 // 都应该做非null判断. 只有在非null(即: 该对象还未被GC)时才能执行后续操作.
                 if (context != null) {
-                    // 将从服务器获取到的最新的新闻详情数据插入到数据库中
-                    new NewsDetailDbInsertTask(context, newsDetail).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                     event = new OnGetNewsDetailEvent(mDocid, newsDetail);
                 }
             }

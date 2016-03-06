@@ -188,7 +188,7 @@ public class NeteaseNewsListActivity extends BaseActivity {
 //            case Constant.REQUEST_CODE_OPEN_NEWS_DETAIL_ACTIVITY:
 //                if (resultCode == RESULT_OK && mPageNewsView != null) {
 //                    // 设置新闻条目的字体变为灰色, 表示已经读过这篇文章或看过这个图片集
-//                    mPageNewsView.updataBeenReadFlagInDb();
+//                    mPageNewsView.updataNewsItemToHasReadState();
 //                }
 //                break;
 //            case Constant.REQUEST_CODE_OPEN_IMAGE_DETAIL_ACTIVITY:

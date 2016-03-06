@@ -167,6 +167,7 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
     @Override
     public void setPresenter(PageNewsListPresenter presenter) {
         this.mPageNewsListPresenter = presenter;
+        mNewsListAdapter.setPresenter(presenter);
     }
 
     @Override
@@ -373,7 +374,7 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
     //            mPtrLvNews.onRefreshComplete();
             return;
         }
-        bPullingState = PullingState.PENDING;
+        mPullingState = PullingState.PENDING;
         mPageNewsListPresenter.requestPageNews(mCurrNewsTabName, true, false);
 
         // 调试代码1. 在断网状态下, 调试下拉刷新ListView的HeaderView将一直显示"刷新中...", 即使
@@ -410,8 +411,8 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
             ToastUtils.show(R.string.fail_network_connection);
             mNextPageNumber = mCurrPageNumber;
             mCurrPageNumber = mTempCurrPageNumber;
-            bPullingState = PullingState.REQUEST_FAIL;
-            if (bNewsCacheQueryState == NewsCacheQueryState.NO_CACHE) {
+            mPullingState = PullingState.REQUEST_FAIL;
+            if (mNewsCacheQueryState == NewsCacheQueryState.NO_CACHE) {
                 doResetStates();
                 doShowViewStubNetworkFail();
             }
@@ -422,6 +423,7 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
                 mTvFooterLoadFail.setVisibility(View.VISIBLE);
             }
         }
+
         else if (e instanceof TestNewsListEvent) {
             ToastUtils.showDebug("测试数据");
         }
@@ -439,12 +441,12 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
 
     @Override
     public void initPullingState() {
-        bPullingState = PullingState.PENDING;
+        mPullingState = PullingState.PENDING;
     }
 
     @Override
     public void initCacheQueryingState() {
-        bNewsCacheQueryState = NewsCacheQueryState.PENDING;
+        mNewsCacheQueryState = NewsCacheQueryState.PENDING;
     }
 
     @Override
@@ -457,7 +459,7 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
     @Override
     public void onNewsItemHasBeenRead() {
         // 更新数据库中"是否已读"的标志位, 便于下次加载时直接显示为灰色.
-        mNewsListAdapter.updataBeenReadFlagInDb(mClickedItemDocid);
+        mNewsListAdapter.updataNewsItemToHasReadState(mClickedItemDocid);
 
         // 更新当前被点击的item的标题颜色为灰色.
 
@@ -546,6 +548,7 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
 
     private void showLoadingViewOnListViewBottomReached() {
         if (NetworkUtils.hasNetworkConnection()) {
+            mTvFooterLoadFail.setVisibility(View.GONE);
             mVgFooterLoadingNextPage.setVisibility(View.VISIBLE);
         } else {
             mTvFooterLoadFail.setVisibility(View.VISIBLE);
@@ -605,15 +608,18 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
                 // 更新上一次刷新时间(当前这次的刷新时间, 就是下一次刷新时的上次刷新时间).
                 // 只有http请求成功得到所需数据时才会更新该时间(该时间就是当前时间).
                 mPageNewsListPresenter.updateLastRefreshTime(mCurrNewsTabName);
-
                 mHasNewsDataShownOnScreen = true;
-                // 如果是因为下拉导致的刷新操作, 那么就将下拉的状态置为请求成功.
-                if (bPullingState == PullingState.PENDING) {
-                    bPullingState = PullingState.REQUEST_SUCCEED;
-                    // 如果已经结束了缓存查询, 就重置2个状态. 如果还在查询中, 则等到缓存查询结束后,
-                    // 再一起重置二者的状态.
-                    if (bNewsCacheQueryState != NewsCacheQueryState.PENDING) {
-                        doResetStates();
+
+                synchronized (mPullingState) {
+                    // 如果是因为下拉导致的刷新操作, 那么就将下拉的状态置为请求成功.
+                    if (mPullingState == PullingState.PENDING) {
+                        mPullingState = PullingState.REQUEST_SUCCEED;
+
+                        // 如果已经结束了缓存查询, 就重置2个状态. 如果还在查询中, 则等到缓存查询结束后,
+                        // 再一起重置二者的状态.
+                        if (mNewsCacheQueryState != NewsCacheQueryState.PENDING) {
+                            doResetStates();
+                        }
                     }
                 }
                 showViewOnDataLoaded();
@@ -622,13 +628,15 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
             else {
                 // TODO: 数据为null时, 表示没有更多数据了.
 //              ToastUtils.showDebug("没有更多数据了, 当前页码 == " + mCurrPageNumber);
-                // 如果是因为下拉导致的刷新操作, 那么就将下拉的状态置为请求失败.
-                if (bPullingState == PullingState.PENDING) {
-                    bPullingState = PullingState.REQUEST_FAIL;
-                    // 如果已经结束了缓存查询, 就重置2个状态. 如果还在查询中, 则等到缓存查询结束后,
-                    // 再一起重置二者的状态.
-                    if (bNewsCacheQueryState != NewsCacheQueryState.PENDING) {
-                        doResetStates();
+                synchronized (mPullingState) {
+                    // 如果是因为下拉导致的刷新操作, 那么就将下拉的状态置为请求失败.
+                    if (mPullingState == PullingState.PENDING) {
+                        mPullingState = PullingState.REQUEST_FAIL;
+                        // 如果已经结束了缓存查询, 就重置2个状态. 如果还在查询中, 则等到缓存查询结束后,
+                        // 再一起重置二者的状态.
+                        if (mNewsCacheQueryState != NewsCacheQueryState.PENDING) {
+                            doResetStates();
+                        }
                     }
                 }
                 showViewOnNoMoreDataToLoad();
@@ -647,8 +655,8 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
         List<NeteaseNewsItem> newsCache = event.getNewsList();
         // 如果能查询到缓存数据
         if (newsCache != null && newsCache.size() > 0) {
-            bNewsCacheQueryState = NewsCacheQueryState.HAS_CACHE;
-            switch (bPullingState) {
+            mNewsCacheQueryState = NewsCacheQueryState.HAS_CACHE;
+            switch (mPullingState) {
                 // 如果发现先前刷新请求服务器最新数据已经成功, 那么就不显示缓存的数据, 并重置两个状态.
                 case REQUEST_SUCCEED:
                     doResetStates();
@@ -672,14 +680,14 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
         }
         // 如果查询不到缓存数据
         else {
-            bNewsCacheQueryState = NewsCacheQueryState.NO_CACHE;
+            mNewsCacheQueryState = NewsCacheQueryState.NO_CACHE;
             // 如果没有缓存, 但发现先前刷新请求服务器最新数据已经成功, 那么就直接重置两个状态.
-            if (bPullingState == PullingState.REQUEST_SUCCEED) {
+            if (mPullingState == PullingState.REQUEST_SUCCEED) {
                 doResetStates();
                 return;
             }
             // 如果既没有缓存, 又不能从服务器上得到最新数据, 那么只能显示一个"加载失败"的空白页面
-            else if (bPullingState == PullingState.REQUEST_FAIL) {
+            else if (mPullingState == PullingState.REQUEST_FAIL) {
                 mCurrPageNumber = 0;
                 mNextPageNumber = 1;
                 doResetStates();
@@ -696,9 +704,9 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
      */
     private void doResetStates() {
         // 缓存查询的状态复位.
-        bNewsCacheQueryState = NewsCacheQueryState.RESET;
+        mNewsCacheQueryState = NewsCacheQueryState.RESET;
         // 下拉刷新请求的状态复位.
-        bPullingState = PullingState.RESET;
+        mPullingState = PullingState.RESET;
     }
 
     @Override
@@ -751,7 +759,8 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
 
     @Override
     public void clear() {
-        // 这句话不能少.
+        // 这句话不能少. 因为在这句话中要执行 Presenter的清理工作, 而Presenter的清理工作包括Model的清理
+        // 以及Presenter内部定义的其他资源(例如: Handler的实例)的清理.
         super.clear();
         EventBusUtils.unregisterEventBus(this);
         // 清理 MyHandler实例发送的所有的callbacks和messages.

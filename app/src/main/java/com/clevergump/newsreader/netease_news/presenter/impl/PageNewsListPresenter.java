@@ -2,6 +2,7 @@ package com.clevergump.newsreader.netease_news.presenter.impl;
 
 import android.os.Handler;
 
+import com.clevergump.newsreader.netease_news.adapter.NeteaseNewsListAdapter;
 import com.clevergump.newsreader.netease_news.model.IPageNewsModel;
 import com.clevergump.newsreader.netease_news.presenter.IPresenter;
 import com.clevergump.newsreader.netease_news.utils.ToastUtils;
@@ -97,5 +98,18 @@ public class PageNewsListPresenter implements IPresenter {
     @Override
     public void clear() {
         sLazyLoadHandler.removeCallbacksAndMessages(null);
+        iModel.clear();
+    }
+
+    /**
+     * 获取某个新闻条目的"是否已读过"的状态
+     * @param docid
+     */
+    public void getNewsItemReadState(String docid, NeteaseNewsListAdapter.OnGetNewsItemReadStateListener listener) {
+        iModel.getNewsItemReadState(docid, listener);
+    }
+
+    public void updateNewsItemToHasReadState(String clickedItemDocId) {
+        iModel.updateNewsItemToHasReadState(clickedItemDocId);
     }
 }

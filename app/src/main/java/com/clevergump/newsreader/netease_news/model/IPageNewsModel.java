@@ -1,5 +1,7 @@
 package com.clevergump.newsreader.netease_news.model;
 
+import com.clevergump.newsreader.netease_news.adapter.NeteaseNewsListAdapter;
+
 /**
  * 分页加载新闻的业务逻辑处理接口
  *
@@ -8,7 +10,7 @@ package com.clevergump.newsreader.netease_news.model;
  * @createTime 2015/11/9 20:02
  * @projectName NewsReader
  */
-public interface IPageNewsModel {
+public interface IPageNewsModel extends IModel {
 
     /**
      * 根据给定的新闻标签名称, 得到该标签对应的url地址.
@@ -38,4 +40,13 @@ public interface IPageNewsModel {
      * 更新上一次刷新时间
      */
     void updateLastRefreshTime(String newsTabName);
+
+    /**
+     * 获取某个新闻条目的"是否已读过"的状态
+     * @param docid
+     * @param listener
+     */
+    void getNewsItemReadState(String docid, NeteaseNewsListAdapter.OnGetNewsItemReadStateListener listener);
+
+    void updateNewsItemToHasReadState(String clickedItemDocId);
 }

@@ -165,19 +165,28 @@ public class NeteaseNewsDetailActivity extends BaseActivity implements View.OnCl
     public void onEventMainThread(BaseNewsDetailEvent event) {
         if (event instanceof OnGetNewsDetailEvent) {
             NeteaseNewsDetail newsDetail = ((OnGetNewsDetailEvent)event).newsDetail;
-            if (newsDetail != null) {
-                setContentDatas(newsDetail);
-                setResult(RESULT_OK);
-                mNewsDetailPresenter.handleUIWhenLoadingSucceeds();
-            }
-            // 如果获取到的数据为null, 则也可以认为是网络异常, 所以需要显示网络异常的界面.
-            else {
-                setResult(RESULT_CANCELED);
-                mNewsDetailPresenter.handleUIWhenLoadingFails();
-            }
+            handleOnGetNewsDetail(newsDetail);
         }
         // 网络异常的事件
         else if (event instanceof NetworkFailsNewsDetailEvent) {
+            setResult(RESULT_CANCELED);
+            mNewsDetailPresenter.handleUIWhenLoadingFails();
+        }
+    }
+
+    /**
+     * 在获取到NewsDetail(新闻详情)数据后, 要进行的处理
+     * @param newsDetail
+     */
+    private void handleOnGetNewsDetail(NeteaseNewsDetail newsDetail) {
+        if (newsDetail != null) {
+            setContentDatas(newsDetail);
+            setResult(RESULT_OK);
+            mNewsDetailPresenter.handleUIWhenLoadingSucceeds();
+            mNewsDetailPresenter.putToCache(newsDetail);
+        }
+        // 如果获取到的数据为null, 则也可以认为是网络异常, 所以需要显示网络异常的界面.
+        else {
             setResult(RESULT_CANCELED);
             mNewsDetailPresenter.handleUIWhenLoadingFails();
         }

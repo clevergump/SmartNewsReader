@@ -1,7 +1,6 @@
 package com.clevergump.newsreader.netease_news.adapter;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,10 +8,11 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.clevergump.newsreader.Constant;
 import com.clevergump.newsreader.R;
 import com.clevergump.newsreader.netease_news.bean.NeteaseNewsBase;
 import com.clevergump.newsreader.netease_news.bean.NeteaseNewsItem;
-import com.clevergump.newsreader.netease_news.dao.table.news_list.impl.NeteaseNewsListDaoImpl;
+import com.clevergump.newsreader.netease_news.presenter.impl.PageNewsListPresenter;
 import com.clevergump.newsreader.netease_news.utils.ImageLoaderUtils;
 
 import java.util.List;
@@ -32,6 +32,7 @@ public class NeteaseNewsListAdapter extends BaseAdapter {
     private static final int ITEM_LAYOUT_RES_FOR_ONE_IMAGE = R.layout.list_item_news_one_image;
     private static final int ITEM_LAYOUT_RES_FOR_THREE_IMAGES = R.layout.list_item_news_three_images;
 
+    private PageNewsListPresenter mPresenter;
     private Context mContext;
     private LayoutInflater mInflater;
     // 新闻数据的list
@@ -40,7 +41,19 @@ public class NeteaseNewsListAdapter extends BaseAdapter {
     // 各个已被成功查看的新闻条目的docId所组成的set
     private Set<String> mClickedItemDocIds = new TreeSet<String>();
 
-    public NeteaseNewsListAdapter(Context context, LayoutInflater inflater, List<NeteaseNewsItem> neteaseNewsItems) {
+    public NeteaseNewsListAdapter(Context context,
+                                  LayoutInflater inflater, List<NeteaseNewsItem> neteaseNewsItems) {
+
+        if (context == null) {
+            throw new IllegalArgumentException(context + " == null");
+        }
+        if (inflater == null) {
+            throw new IllegalArgumentException(inflater + " == null");
+        }
+        if (neteaseNewsItems == null || neteaseNewsItems.size() < 0) {
+            throw new IllegalArgumentException(neteaseNewsItems + " == null or size < 0");
+        }
+
         this.mContext = context;
         this.mInflater = inflater;
         this.mNeteaseNewsItems = neteaseNewsItems;
@@ -132,12 +145,39 @@ public class NeteaseNewsListAdapter extends BaseAdapter {
      * @param neteaseNewsItem
      * @param holder
      */
-    private void setNewsItemTitleTextColor(NeteaseNewsItem neteaseNewsItem, ViewHolder holder) {
+    private void setNewsItemTitleTextColor(NeteaseNewsItem neteaseNewsItem, final ViewHolder holder) {
         if (mClickedItemDocIds.contains(neteaseNewsItem.docid)) {
             holder.tvTitle.setTextColor(mContext.getResources().getColor(R.color.color_netease_news_list_item_title_has_read));
-        } else {
-            new GetNewsItemReadStateTask(neteaseNewsItem.docid, holder).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        } else if (mPresenter != null) {
+            mPresenter.getNewsItemReadState(neteaseNewsItem.docid, new OnGetNewsItemReadStateListener() {
+                @Override
+                public void onGetNewsItemReadState(int readState) {
+                    if (readState == Constant.NEWS_ITEM_HAS_READ) {
+                        holder.tvTitle.setTextColor(mContext.getResources().getColor(R.color.color_netease_news_list_item_title_has_read));
+                    } else {
+                        holder.tvTitle.setTextColor(mContext.getResources().getColor(R.color.color_netease_news_list_item_title_not_read));
+                    }
+                }
+            });
         }
+    }
+
+    /**
+     * 设置 PageNewsListPresenter 的引用.
+     * @param presenter
+     */
+    public void setPresenter(PageNewsListPresenter presenter) {
+        if (presenter == null) {
+            throw new IllegalArgumentException(presenter + " == null");
+        }
+        this.mPresenter = presenter;
+    }
+
+    /**
+     * 当获取到某条新闻是否已读的状态之后的回调接口
+     */
+    public interface OnGetNewsItemReadStateListener {
+        void onGetNewsItemReadState(int readState);
     }
 
     /**
@@ -149,7 +189,11 @@ public class NeteaseNewsListAdapter extends BaseAdapter {
         ImageLoaderUtils.displayImage(imgUrl, iv, null, null);
     }
 
-    public void updataBeenReadFlagInDb(String clickedItemDocId) {
+    /**
+     * 将与给定docId所对应的那条新闻条目在底层(通常是数据库)存储的阅读状态更改为"已读".
+     * @param clickedItemDocId
+     */
+    public void updataNewsItemToHasReadState(String clickedItemDocId) {
         mClickedItemDocIds.add(clickedItemDocId);
 
         /**
@@ -158,9 +202,9 @@ public class NeteaseNewsListAdapter extends BaseAdapter {
          * 这样的效果显然不好, 其实只需要设置被阅读的那个item的标题TextView的颜色为灰色即可.
          */
 //        notifyDataSetChanged();
-
-        // 更新数据库中已读过的item的阅读状态标志位的值.
-        new UpdateNewsItemToHasReadStateTask(clickedItemDocId).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        if (mPresenter != null) {
+            mPresenter.updateNewsItemToHasReadState(clickedItemDocId);
+        }
     }
 
     private static class ViewHolder {
@@ -185,50 +229,5 @@ public class NeteaseNewsListAdapter extends BaseAdapter {
     public int getItemViewType(int position) {
         NeteaseNewsItem neteaseNewsItem = (NeteaseNewsItem) getItem(position);
         return neteaseNewsItem.getNewsItemType(neteaseNewsItem.imgextra);
-    }
-
-    /**
-     * 将某条新闻条目的是否已读状态设置为"已读"的任务.
-     */
-    private class UpdateNewsItemToHasReadStateTask extends AsyncTask<Void, Void, Void> {
-        private String mItemBeenReadDocId;
-
-        public UpdateNewsItemToHasReadStateTask(String itemBeenReadDocId) {
-            this.mItemBeenReadDocId = itemBeenReadDocId;
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            NeteaseNewsListDaoImpl.getInstance().updateNewsItemToHasReadState(mItemBeenReadDocId);
-            return null;
-        }
-    }
-
-    /**
-     * 获取某个新闻条目的阅读状态的任务
-     */
-    private class GetNewsItemReadStateTask extends AsyncTask<Void, Void, Integer> {
-        private String mItemDocId;
-        private ViewHolder mHolder;
-
-        public GetNewsItemReadStateTask(String itemDocId, ViewHolder holder) {
-            this.mItemDocId = itemDocId;
-            this.mHolder = holder;
-        }
-
-        @Override
-        protected Integer doInBackground(Void... params) {
-            int hasRead = NeteaseNewsListDaoImpl.getInstance().queryNewsItemReadState(mItemDocId);
-            return hasRead;
-        }
-
-        @Override
-        protected void onPostExecute(Integer hasRead) {
-            if (hasRead == 1) {
-                mHolder.tvTitle.setTextColor(mContext.getResources().getColor(R.color.color_netease_news_list_item_title_has_read));
-            } else {
-                mHolder.tvTitle.setTextColor(mContext.getResources().getColor(R.color.color_netease_news_list_item_title_not_read));
-            }
-        }
     }
 }

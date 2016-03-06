@@ -1,11 +1,11 @@
 package com.clevergump.newsreader.netease_news.model.impl;
 
-import android.os.AsyncTask;
-
+import com.clevergump.newsreader.netease_news.adapter.NeteaseNewsListAdapter;
 import com.clevergump.newsreader.netease_news.event.impl.OnGetLatestNewsListEvent;
 import com.clevergump.newsreader.netease_news.event.impl.base.BaseNewsListEvent;
 import com.clevergump.newsreader.netease_news.fragment.manager.NewsFragmentManager;
 import com.clevergump.newsreader.netease_news.model.IPageNewsModel;
+import com.clevergump.newsreader.netease_news.model.MyAsyncTask;
 import com.clevergump.newsreader.netease_news.utils.EventBusUtils;
 
 import java.util.ArrayList;
@@ -21,6 +21,7 @@ import java.util.List;
  */
 public class TestPtrListViewPageNewsModelImpl implements IPageNewsModel {
     private String mNewsTypeId;
+    private MyAsyncTask<Object, Void, Void> mTask;
 
 
     @Override
@@ -33,8 +34,11 @@ public class TestPtrListViewPageNewsModelImpl implements IPageNewsModel {
                                 boolean shouldLoadCache) {
         this.mNewsTypeId = newsTypeId;
         String newsTabName = NewsFragmentManager.getInstance().getNewsTabName(newsTypeId);
-        // 使用AsyncTask自带的线程池.
-        new TestRefreshingTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, newsTabName, pageNumber);
+        // 使用固定线程容量的并发线程池.
+        if (mTask == null) {
+            mTask = new TestRefreshingTask().
+                    executeOnExecutor(MyAsyncTask.CACHED_THREAD_POOL_FOR_GETTING_FROM_SERVER, newsTabName, pageNumber);
+        }
     }
 
     @Override
@@ -57,7 +61,29 @@ public class TestPtrListViewPageNewsModelImpl implements IPageNewsModel {
 
     }
 
-    private class TestRefreshingTask extends AsyncTask<Object, Void, Void> {
+    @Override
+    public void getNewsItemReadState(String docid, NeteaseNewsListAdapter.OnGetNewsItemReadStateListener listener) {
+        // TODO
+    }
+
+    @Override
+    public void updateNewsItemToHasReadState(String clickedItemDocId) {
+        // TODO
+    }
+
+    @Override
+    public void clear() {
+        if (mTask != null && mTask.isCancelable()) {
+            mTask.cancel(true);
+        }
+    }
+
+    private class TestRefreshingTask extends MyAsyncTask<Object, Void, Void> {
+        @Override
+        public boolean isCancelable() {
+            return true;
+        }
+
         @Override
         protected Void doInBackground(Object... params) {
             String newsTabName = (String) params[0];

@@ -34,4 +34,9 @@ public interface Constant {
     // 从新闻列表页面点击某一个特定新闻条目, 打开该条目的详情页面时要传递的Intent中携带的该条目中包含的所有
     // 图片的url地址组成的list, 所对应的key.
     String KEY_NETEASE_NEWS_DETAIL_IMAGE_URLS = "key_netease_news_detail_image_urls";
+
+    // 新闻条目已读过
+    int NEWS_ITEM_HAS_READ = 1;
+    // 新闻条目未读过
+    int NEWS_ITEM_NOT_READ = 0;
 }

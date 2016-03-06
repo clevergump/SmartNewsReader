@@ -11,9 +11,9 @@ import com.clevergump.newsreader.netease_news.view.IPageNewsView;
  */
 public abstract class PageNewsPtrBaseView implements IPageNewsView {
     // 下拉刷新的状态
-    protected PullingState bPullingState;
+    protected volatile PullingState mPullingState;
     // 新闻缓存查询的状态
-    protected NewsCacheQueryState bNewsCacheQueryState;
+    protected volatile NewsCacheQueryState mNewsCacheQueryState;
 
     protected PageNewsListPresenter mPageNewsListPresenter;
 

@@ -1,14 +1,15 @@
 package com.clevergump.newsreader.netease_news.model.impl;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.clevergump.newsreader.MyApplication;
+import com.clevergump.newsreader.netease_news.adapter.NeteaseNewsListAdapter;
 import com.clevergump.newsreader.netease_news.bean.NeteaseNewsItem;
 import com.clevergump.newsreader.netease_news.cache.impl.PageNewsListCacheBase;
 import com.clevergump.newsreader.netease_news.dao.table.news_detail.INeteaseNewsDetailDao;
 import com.clevergump.newsreader.netease_news.dao.table.news_list.INeteaseNewsListDao;
+import com.clevergump.newsreader.netease_news.dao.table.news_list.impl.NeteaseNewsListDaoImpl;
 import com.clevergump.newsreader.netease_news.event.impl.NetworkFailsNewsListEvent;
 import com.clevergump.newsreader.netease_news.event.impl.OnGetCachedNewsListEvent;
 import com.clevergump.newsreader.netease_news.event.impl.base.BaseNewsListEvent;
@@ -16,9 +17,11 @@ import com.clevergump.newsreader.netease_news.fragment.manager.NewsFragmentManag
 import com.clevergump.newsreader.netease_news.http.HttpGetNewsList;
 import com.clevergump.newsreader.netease_news.http.NeteaseNewsUrlUtils;
 import com.clevergump.newsreader.netease_news.model.IPageNewsModel;
+import com.clevergump.newsreader.netease_news.model.MyAsyncTask;
 import com.clevergump.newsreader.netease_news.utils.EventBusUtils;
 import com.clevergump.newsreader.netease_news.utils.NetworkUtils;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -44,6 +47,7 @@ public class PageNewsModelImpl implements IPageNewsModel {
     private INeteaseNewsListDao mNewsListDao;
     private INeteaseNewsDetailDao mNewsDatailDao;
     private PageNewsListCacheBase mPageNewsListCache;
+    private List<MyAsyncTask> mTasks = new LinkedList<MyAsyncTask>();
 
     public PageNewsModelImpl(Context context, String newsTypeId, INeteaseNewsListDao newsListDao,
                              PageNewsListCacheBase pageNewsListCache) {
@@ -115,6 +119,26 @@ public class PageNewsModelImpl implements IPageNewsModel {
         // TODO: 存入硬盘
     }
 
+    /**
+     * 获取某个新闻条目的"是否已读过"的状态
+     * @param docid
+     * @param listener
+     */
+    @Override
+    public void getNewsItemReadState(String docid, NeteaseNewsListAdapter.OnGetNewsItemReadStateListener listener) {
+        MyAsyncTask<Void, Void, Integer> getReadStateTask = new GetNewsItemReadStateTask(docid, listener)
+                .executeOnExecutor(MyAsyncTask.CACHED_THREAD_POOL_FOR_GETTING_FROM_CACHE);
+        mTasks.add(getReadStateTask);
+    }
+
+    @Override
+    public void updateNewsItemToHasReadState(String clickedItemDocId) {
+        // 更新数据库中已读过的item的阅读状态标志位的值.
+        MyAsyncTask<Void, Void, Void> updateReadStateTask = new UpdateNewsItemToHasReadStateTask(clickedItemDocId)
+                .executeOnExecutor(MyAsyncTask.CACHED_THREAD_POOL_FOR_PUTTING_TO_CACHE);
+        mTasks.add(updateReadStateTask);
+    }
+
     @Override
     public boolean shouldRefreshWholePageData(String newsTabName, boolean isPullToRefresh) {
         if (isPullToRefresh) {
@@ -136,11 +160,14 @@ public class PageNewsModelImpl implements IPageNewsModel {
         // 只有需要加载缓存数据时, 才会去获取缓存数据, 页码为0不代表就一定要加载缓存, 因为也可能是使用了下拉刷新
         // 导致数据需要完全重新加载而请求第0页的数据, 但这时是不需要加载缓存的.
         if (shouldLoadCache) {
-            // 使用AsyncTask自带的线程池.
-            new GetNewsListFromCacheTask(newsTypeId, pageNumber).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            // 使用固定线程容量的并发线程池.
+            MyAsyncTask<Void, Void, Void> getCachedNewsListTask = new GetCachedNewsListTask(newsTypeId, pageNumber)
+                    .executeOnExecutor(MyAsyncTask.CACHED_THREAD_POOL_FOR_GETTING_FROM_CACHE);
+            mTasks.add(getCachedNewsListTask);
         }
 
-        // 如果网络连接异常, 就不发起http请求, 而直接发出网络连接失败的事件.
+        // 如果网络连接正常, 就并行地发起http请求(与获取缓存数据是同步进行的); 如果网络连接异常,
+        // 就不发起请求而是直接发出网络连接失败的事件.
         if (!NetworkUtils.hasNetworkConnection()) {
             BaseNewsListEvent event = new NetworkFailsNewsListEvent(newsTypeId);
             EventBusUtils.post(event);
@@ -150,11 +177,45 @@ public class PageNewsModelImpl implements IPageNewsModel {
         }
     }
 
-    private class GetNewsListFromCacheTask extends AsyncTask<Void, Void, Void> {
+    @Override
+    public void clear() {
+        for (MyAsyncTask task : mTasks) {
+            if (task.isCancelable()) {
+                task.cancel(true);
+            }
+        }
+    }
+
+    /**
+     * 将某条新闻条目的是否已读状态设置为"已读"的任务.
+     */
+    private class UpdateNewsItemToHasReadStateTask extends MyAsyncTask<Void, Void, Void> {
+        private String docId;
+
+        public UpdateNewsItemToHasReadStateTask(String itemBeenReadDocId) {
+            this.docId = itemBeenReadDocId;
+        }
+
+        @Override
+        public boolean isCancelable() {
+            return false;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            NeteaseNewsListDaoImpl.getInstance().updateNewsItemToHasReadState(docId);
+            return null;
+        }
+    }
+
+    /**
+     * 从缓存中获取新闻ListView数据的异步任务.
+     */
+    private class GetCachedNewsListTask extends MyAsyncTask<Void, Void, Void> {
         private String newsTypeId;
         private int pageNumber;
 
-        public GetNewsListFromCacheTask(String newsTypeId, int pageNumber) {
+        public GetCachedNewsListTask(String newsTypeId, int pageNumber) {
             if (TextUtils.isEmpty(newsTypeId)) {
                 throw new IllegalArgumentException(newsTypeId + " == null or contains no characters.");
             }
@@ -171,6 +232,42 @@ public class PageNewsModelImpl implements IPageNewsModel {
             BaseNewsListEvent event = new OnGetCachedNewsListEvent(mNewsTypeId, cachedNewsItemList);
             EventBusUtils.post(event);
             return null;
+        }
+
+        @Override
+        public boolean isCancelable() {
+            // 不允许取消
+            return false;
+        }
+    }
+
+    /**
+     * 获取某个新闻条目的阅读状态的任务
+     */
+    private class GetNewsItemReadStateTask extends MyAsyncTask<Void, Void, Integer> {
+        private String mItemDocId;
+        private NeteaseNewsListAdapter.OnGetNewsItemReadStateListener mListener;
+
+        public GetNewsItemReadStateTask(String itemDocId,
+                                        NeteaseNewsListAdapter.OnGetNewsItemReadStateListener listener) {
+            this.mItemDocId = itemDocId;
+            this.mListener = listener;
+        }
+
+        @Override
+        public boolean isCancelable() {
+            return true;
+        }
+
+        @Override
+        protected Integer doInBackground(Void... params) {
+            int hasRead = NeteaseNewsListDaoImpl.getInstance().queryNewsItemReadState(mItemDocId);
+            return hasRead;
+        }
+
+        @Override
+        protected void onPostExecute(Integer hasRead) {
+            mListener.onGetNewsItemReadState(hasRead);
         }
     }
 }
