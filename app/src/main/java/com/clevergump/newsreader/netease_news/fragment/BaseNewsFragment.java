@@ -42,13 +42,13 @@ public class BaseNewsFragment extends Fragment {
     public static final String KEY_NEWS_TAB_NAME = "key_news_tab_name";
     private final int FIRST_PAGE_NUMBER = 0;
 
-    protected NeteaseNewsListActivity bActivity;
-    protected IPageNewsView bPageNewsView;
-    protected PageNewsListPresenter bPageNewsListPresenter;
-    protected String bNewsTabName;
-    protected String bNewsTypeId;
+    protected NeteaseNewsListActivity mActivityAttached;
+    protected IPageNewsView mPageNewsView;
+    protected PageNewsListPresenter mPageNewsListPresenter;
+    protected String mNewsTabName;
+    protected String mNewsTypeId;
 
-    private Set<IEventBusSubscriber> bEventBusSubscribers = new HashSet<IEventBusSubscriber>();
+    private Set<IEventBusSubscriber> mEventBusSubscribers = new HashSet<IEventBusSubscriber>();
 
     protected int bCurrentPageNumber = FIRST_PAGE_NUMBER;
 
@@ -80,7 +80,7 @@ public class BaseNewsFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         LogUtils.i(getTabName() + "onCreate");
         super.onCreate(savedInstanceState);
-        bActivity = (NeteaseNewsListActivity) getActivity();
+        mActivityAttached = (NeteaseNewsListActivity) getActivity();
 //        EventBusUtils.registerEventBus(this);
 //        ToastUtils.showDebug(getClass().getSimpleName()+" onCreate");
     }
@@ -100,17 +100,17 @@ public class BaseNewsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         LogUtils.i(getTabName() + "onCreateView");
-        bNewsTabName = getArguments().getString(KEY_NEWS_TAB_NAME);
-        bNewsTypeId = NewsFragmentManager.getInstance().getNewsTypeId(bNewsTabName);
-        bPageNewsView = getPageNewsView(bActivity, inflater, bNewsTabName);
-        bEventBusSubscribers.add(bPageNewsView);
+        mNewsTabName = getArguments().getString(KEY_NEWS_TAB_NAME);
+        mNewsTypeId = NewsFragmentManager.getInstance().getNewsTypeId(mNewsTabName);
+        mPageNewsView = getPageNewsView(mActivityAttached, inflater, mNewsTabName);
+        mEventBusSubscribers.add(mPageNewsView);
 
         // 每个Fragment实例都会执行一次生命周期方法. 所以每次执行时都会调用下面这句代码.
         // 而下面这句代码中包含了EventBus注册监听器的方法, 而EventBus的监听器是不允许重复注册的,
         // 所以需要对其注册进行预先的判断, 如果已经注册过, 就不再重复注册.
         // 重复注册EventBus监听器会报异常: eventbus Subscriber... already registered to event...
-        bPageNewsView.onCreate();
-        return bPageNewsView.getContentView();
+        mPageNewsView.onCreate();
+        return mPageNewsView.getContentView();
 
 //        return setTabNameAsContentView();
     }
@@ -122,7 +122,7 @@ public class BaseNewsFragment extends Fragment {
         initData();
 
         // 一进入该fragment页面, 就要请求加载新闻数据并显示.
-        bPageNewsListPresenter.requestPageNews(bNewsTabName, true, true);
+        mPageNewsListPresenter.requestPageNews(mNewsTabName, true, true);
     }
 
     @Override
@@ -134,7 +134,7 @@ public class BaseNewsFragment extends Fragment {
         // 因为为了节省资源, 我们在 Activity或 Fragment的 onStop()方法中取消对EventBus的注册, 所以当
         // 一个页面从后台再回到前台, 就需要再次注册 EventBus, 所以对 EventBus的注册过程应该放在 Activity
         // 或 Fragment的 onStart() 方法中执行, 而不是 onCreate()方法中执行.
-        for (IEventBusSubscriber subscriber : bEventBusSubscribers) {
+        for (IEventBusSubscriber subscriber : mEventBusSubscribers) {
             if (!EventBusUtils.isRegistered(subscriber)) {
                 EventBusUtils.registerEventBus(subscriber);
             }
@@ -157,7 +157,7 @@ public class BaseNewsFragment extends Fragment {
     public void onStop() {
         LogUtils.i(getTabName() + "onStop");
         super.onStop();
-        for (IEventBusSubscriber subscriber : bEventBusSubscribers) {
+        for (IEventBusSubscriber subscriber : mEventBusSubscribers) {
             if (EventBusUtils.isRegistered(subscriber)) {
                 EventBusUtils.unregisterEventBus(subscriber);
             }
@@ -178,7 +178,7 @@ public class BaseNewsFragment extends Fragment {
         // 这个onDestroy()的调用很有必要. 因为在该方法中可以执行"取消监听器的注册", 清理Handler发出
         // 的所有 callbacks和messages, 取消所有正在执行的异步任务(如: AsyncTask), 关闭所有的
         // Cursor/IO流/HttpURLConnection等.
-        bPageNewsView.clear();
+        mPageNewsView.clear();
     }
 
     @Override
@@ -203,13 +203,13 @@ public class BaseNewsFragment extends Fragment {
 //            pageNewsModel = new TestPtrListViewPageNewsModelImpl();
         } else {
             PageNewsListCache pageNewsListCache = PageNewsListCache.getInstance();
-            pageNewsModel = new PageNewsModelImpl(bActivity, bNewsTypeId,
+            pageNewsModel = new PageNewsModelImpl(mActivityAttached, mNewsTypeId,
                     NeteaseNewsListDaoImpl.getInstance(), pageNewsListCache);
-            bEventBusSubscribers.add(pageNewsListCache);
+            mEventBusSubscribers.add(pageNewsListCache);
         }
 
-        bPageNewsListPresenter = new PageNewsListPresenter(bPageNewsView, pageNewsModel);
-        bPageNewsView.setPresenter(bPageNewsListPresenter);
+        mPageNewsListPresenter = new PageNewsListPresenter(mPageNewsView, pageNewsModel);
+        mPageNewsView.setPresenter(mPageNewsListPresenter);
     }
 
     /**
@@ -227,7 +227,7 @@ public class BaseNewsFragment extends Fragment {
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
         // onDraw 的过程
-        tv.setText(bNewsTabName);
+        tv.setText(mNewsTabName);
         tv.setTextColor(Color.parseColor("#0000ff"));
         tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 30.0f);
         tv.setGravity(Gravity.CENTER);
