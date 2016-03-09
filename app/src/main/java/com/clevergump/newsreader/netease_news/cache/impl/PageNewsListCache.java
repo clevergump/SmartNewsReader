@@ -8,9 +8,9 @@ import com.clevergump.newsreader.Constant;
 import com.clevergump.newsreader.MyApplication;
 import com.clevergump.newsreader.netease_news.bean.NeteaseNewsBase;
 import com.clevergump.newsreader.netease_news.bean.NeteaseNewsItem;
+import com.clevergump.newsreader.netease_news.cache.IPageNewsListCache;
 import com.clevergump.newsreader.netease_news.dao.table.news_list.impl.NeteaseNewsListDaoImpl;
 import com.clevergump.newsreader.netease_news.fragment.manager.NewsFragmentManager;
-import com.clevergump.newsreader.netease_news.utils.EventBusUtils;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -25,7 +25,7 @@ import java.util.List;
  * @createTime 2015/12/10 9:41
  * @projectName NewsReader
  */
-public class PageNewsListCache extends PageNewsListCacheBase {
+public class PageNewsListCache implements IPageNewsListCache {
 
     // 新闻条目的内存缓存
     // key: 新闻条目的typeId, value: 属于key类型的一系列新闻条目.
@@ -49,20 +49,9 @@ public class PageNewsListCache extends PageNewsListCacheBase {
         return PageNewsListCacheImplHolder.INSTANCE;
     }
 
-    @Override
-    public void registerEventBus() {
-        EventBusUtils.registerEventBus(this);
-    }
-
-    @Override
-    public void unregisterEventBus() {
-        EventBusUtils.unregisterEventBus(this);
-    }
-
     private static class PageNewsListCacheImplHolder {
         private static final PageNewsListCache INSTANCE = new PageNewsListCache();
     }
-
 
     /******************************* public方法 ******************************************/
 
@@ -152,6 +141,8 @@ public class PageNewsListCache extends PageNewsListCacheBase {
 
         mThreeImageNewsItemImageUrlsContainer.put(docid, imageUrls);
     }
+
+
 
     /*************************** private方法 **********************************/
 

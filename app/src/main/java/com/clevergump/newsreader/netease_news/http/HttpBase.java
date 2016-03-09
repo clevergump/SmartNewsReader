@@ -15,7 +15,7 @@ import java.lang.ref.WeakReference;
  * @projectName NewsReader
  */
 public abstract class HttpBase {
-    protected WeakReference<Context> mContextWeakRef;
+    protected final WeakReference<Context> mContextWeakRef;
 
     public HttpBase(Context context) {
         mContextWeakRef = new WeakReference<Context>(context);

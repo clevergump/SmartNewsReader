@@ -3,10 +3,13 @@ package com.clevergump.newsreader.netease_news.presenter.impl;
 import android.os.Handler;
 
 import com.clevergump.newsreader.netease_news.adapter.NeteaseNewsListAdapter;
+import com.clevergump.newsreader.netease_news.bean.NeteaseNewsItem;
 import com.clevergump.newsreader.netease_news.model.IPageNewsModel;
 import com.clevergump.newsreader.netease_news.presenter.IPresenter;
 import com.clevergump.newsreader.netease_news.utils.ToastUtils;
 import com.clevergump.newsreader.netease_news.view.IPageNewsView;
+
+import java.util.List;
 
 /**
  * @author zhangzhiyi
@@ -111,5 +114,14 @@ public class PageNewsListPresenter implements IPresenter {
 
     public void updateNewsItemToHasReadState(String clickedItemDocId) {
         iModel.updateNewsItemToHasReadState(clickedItemDocId);
+    }
+
+    /**
+     * 将接收到的最新的新闻 ListView的数据存入缓存.
+     * @param newsTypeId
+     * @param latestNewsList 最新的新闻list数据
+     */
+    public void putToCache(String newsTypeId, List<NeteaseNewsItem> latestNewsList) {
+        iModel.putToCache(newsTypeId, latestNewsList);
     }
 }

@@ -1,6 +1,9 @@
 package com.clevergump.newsreader.netease_news.model;
 
 import com.clevergump.newsreader.netease_news.adapter.NeteaseNewsListAdapter;
+import com.clevergump.newsreader.netease_news.bean.NeteaseNewsItem;
+
+import java.util.List;
 
 /**
  * 分页加载新闻的业务逻辑处理接口
@@ -49,4 +52,11 @@ public interface IPageNewsModel extends IModel {
     void getNewsItemReadState(String docid, NeteaseNewsListAdapter.OnGetNewsItemReadStateListener listener);
 
     void updateNewsItemToHasReadState(String clickedItemDocId);
+
+    /**
+     * 将接收到的最新的新闻 ListView的数据存入缓存.
+     * @param newsTypeId
+     * @param latestNewsList 最新的新闻list数据
+     */
+    void putToCache(String newsTypeId, List<NeteaseNewsItem> latestNewsList);
 }

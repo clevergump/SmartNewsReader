@@ -45,11 +45,12 @@ public class HttpGetNewsDetail extends HttpBase {
 
     @Override
     protected Request getRequest() {
-        if (mContextWeakRef == null) {
-            throw new IllegalStateException("mContextWeakRef has not been initialized.");
+        Context context = mContextWeakRef.get();
+        if (context == null) {
+            throw new IllegalStateException("Activity has been destroyed.");
         }
         Request request = new JsonObjectRequest(Request.Method.GET, mNewsDetailUrl, null,
-            new GetNewsDetailResponseListener(mContextWeakRef.get()), new Response.ErrorListener() {
+            new GetNewsDetailResponseListener(context), new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
                 // 发送网络异常的事件.

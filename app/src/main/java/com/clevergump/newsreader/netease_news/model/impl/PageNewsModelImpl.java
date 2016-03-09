@@ -6,7 +6,7 @@ import android.text.TextUtils;
 import com.clevergump.newsreader.MyApplication;
 import com.clevergump.newsreader.netease_news.adapter.NeteaseNewsListAdapter;
 import com.clevergump.newsreader.netease_news.bean.NeteaseNewsItem;
-import com.clevergump.newsreader.netease_news.cache.impl.PageNewsListCacheBase;
+import com.clevergump.newsreader.netease_news.cache.IPageNewsListCache;
 import com.clevergump.newsreader.netease_news.dao.table.news_detail.INeteaseNewsDetailDao;
 import com.clevergump.newsreader.netease_news.dao.table.news_list.INeteaseNewsListDao;
 import com.clevergump.newsreader.netease_news.dao.table.news_list.impl.NeteaseNewsListDaoImpl;
@@ -46,11 +46,11 @@ public class PageNewsModelImpl implements IPageNewsModel {
     private String mNewsTypeId;
     private INeteaseNewsListDao mNewsListDao;
     private INeteaseNewsDetailDao mNewsDatailDao;
-    private PageNewsListCacheBase mPageNewsListCache;
+    private IPageNewsListCache mPageNewsListCache;
     private List<MyAsyncTask> mTasks = new LinkedList<MyAsyncTask>();
 
     public PageNewsModelImpl(Context context, String newsTypeId, INeteaseNewsListDao newsListDao,
-                             PageNewsListCacheBase pageNewsListCache) {
+                             IPageNewsListCache pageNewsListCache) {
         if (context == null) {
             throw new IllegalArgumentException(context + " == null");
         }
@@ -139,6 +139,18 @@ public class PageNewsModelImpl implements IPageNewsModel {
         mTasks.add(updateReadStateTask);
     }
 
+    /**
+     * 将接收到的最新的新闻 ListView的数据存入缓存.
+     * @param newsTypeId
+     * @param latestNewsList 最新的新闻list数据
+     */
+    @Override
+    public void putToCache(String newsTypeId, List<NeteaseNewsItem> latestNewsList) {
+        MyAsyncTask<Void, Void, Void> putNewsListToCacheTask = new PutNewsListToCacheTask(newsTypeId, latestNewsList)
+                .executeOnExecutor(MyAsyncTask.CACHED_THREAD_POOL_FOR_PUTTING_TO_CACHE);
+        mTasks.add(putNewsListToCacheTask);
+    }
+
     @Override
     public boolean shouldRefreshWholePageData(String newsTabName, boolean isPullToRefresh) {
         if (isPullToRefresh) {
@@ -183,6 +195,31 @@ public class PageNewsModelImpl implements IPageNewsModel {
             if (task.isCancelable()) {
                 task.cancel(true);
             }
+        }
+    }
+
+    /**
+     * 将新闻 ListView的 list数据存入缓存的任务
+     */
+    private class PutNewsListToCacheTask extends MyAsyncTask<Void, Void, Void> {
+        private final String newsTypeId;
+        private final List<NeteaseNewsItem> latestNewsList;
+
+        public PutNewsListToCacheTask(String newsTypeId, List<NeteaseNewsItem> latestNewsList) {
+            this.newsTypeId = newsTypeId;
+            this.latestNewsList = latestNewsList;
+        }
+
+        @Override
+        public boolean isCancelable() {
+            // 不能取消.
+            return false;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            mPageNewsListCache.putNewsListToCache(newsTypeId, latestNewsList);
+            return null;
         }
     }
 

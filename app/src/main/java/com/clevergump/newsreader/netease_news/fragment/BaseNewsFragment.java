@@ -205,7 +205,6 @@ public class BaseNewsFragment extends Fragment {
             PageNewsListCache pageNewsListCache = PageNewsListCache.getInstance();
             pageNewsModel = new PageNewsModelImpl(mActivityAttached, mNewsTypeId,
                     NeteaseNewsListDaoImpl.getInstance(), pageNewsListCache);
-            mEventBusSubscribers.add(pageNewsListCache);
         }
 
         mPageNewsListPresenter = new PageNewsListPresenter(mPageNewsView, pageNewsModel);

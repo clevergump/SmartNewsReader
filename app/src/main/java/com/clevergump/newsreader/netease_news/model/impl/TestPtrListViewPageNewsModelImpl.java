@@ -1,6 +1,7 @@
 package com.clevergump.newsreader.netease_news.model.impl;
 
 import com.clevergump.newsreader.netease_news.adapter.NeteaseNewsListAdapter;
+import com.clevergump.newsreader.netease_news.bean.NeteaseNewsItem;
 import com.clevergump.newsreader.netease_news.event.impl.OnGetLatestNewsListEvent;
 import com.clevergump.newsreader.netease_news.event.impl.base.BaseNewsListEvent;
 import com.clevergump.newsreader.netease_news.fragment.manager.NewsFragmentManager;
@@ -69,6 +70,11 @@ public class TestPtrListViewPageNewsModelImpl implements IPageNewsModel {
     @Override
     public void updateNewsItemToHasReadState(String clickedItemDocId) {
         // TODO
+    }
+
+    @Override
+    public void putToCache(String newsTypeId, List<NeteaseNewsItem> latestNewsList) {
+
     }
 
     @Override

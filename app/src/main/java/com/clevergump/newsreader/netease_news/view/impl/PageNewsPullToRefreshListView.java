@@ -415,7 +415,7 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
         else if (e instanceof OnGetLatestNewsListEvent) {
 //            ToastUtils.showDebug("最新数据");
             OnGetLatestNewsListEvent event = (OnGetLatestNewsListEvent) e;
-            handleReceivingLatestNewsEvent(event);
+            handleReceivingLatestNewsListEvent(event);
         }
         // 网络异常的事件
         else if (e instanceof NetworkFailsNewsListEvent) {
@@ -599,7 +599,11 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
         mTvFooterNoMoreToLoad.setVisibility(View.VISIBLE);
     }
 
-    private void handleReceivingLatestNewsEvent(OnGetLatestNewsListEvent event) {
+    /**
+     * 处理收到的最新的新闻 ListView的数据.
+     * @param event
+     */
+    private void handleReceivingLatestNewsListEvent(OnGetLatestNewsListEvent event) {
 //        if (mPtrLvNews.isRefreshing()) {
 //            mPtrLvNews.onRefreshComplete();
 //            // 复位本次下拉的状态, 表示本次下拉已结束.
@@ -609,12 +613,13 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
             return;
         }
         if (!Constant.isTestPtrListViewOnly) {
-            List<NeteaseNewsItem> newsCache = event.getNewsList();
-            if (newsCache != null && newsCache.size() > 0) {
+            List<NeteaseNewsItem> latestNewsList = event.getNewsList();
+            mPageNewsListPresenter.putToCache(event.getNewsType(), latestNewsList);
+            if (latestNewsList != null && latestNewsList.size() > 0) {
                 if (NextDataIncomingType.REPLACE.equals(mNextDataIncomingType)) {
                     mNeteaseNewsItems.clear();
                 }
-                mNeteaseNewsItems.addAll(newsCache);
+                mNeteaseNewsItems.addAll(latestNewsList);
                 mNewsListAdapter.notifyDataSetChanged();
                 // 更新上一次刷新时间(当前这次的刷新时间, 就是下一次刷新时的上次刷新时间).
                 // 只有http请求成功得到所需数据时才会更新该时间(该时间就是当前时间).
