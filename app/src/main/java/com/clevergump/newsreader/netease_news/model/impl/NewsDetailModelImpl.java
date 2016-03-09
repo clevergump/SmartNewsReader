@@ -14,6 +14,7 @@ import com.clevergump.newsreader.netease_news.model.MyAsyncTask;
 import com.clevergump.newsreader.netease_news.utils.EventBusUtils;
 import com.clevergump.newsreader.netease_news.utils.NetworkUtils;
 
+import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -83,8 +84,8 @@ public class NewsDetailModelImpl implements INewsDetailModel {
     /**
      * 获取新闻详情数据的异步任务.
      */
-    private class GetNewsDetailTask extends MyAsyncTask<Void, Void, NeteaseNewsDetail> {
-        private Context mContext;
+    private static class GetNewsDetailTask extends MyAsyncTask<Void, Void, NeteaseNewsDetail> {
+        private WeakReference<Context> mWeakRef;
         private String mDocid;
 
         public GetNewsDetailTask(Context context, String docid) {
@@ -94,7 +95,7 @@ public class NewsDetailModelImpl implements INewsDetailModel {
             if (TextUtils.isEmpty(docid)) {
                 throw new IllegalArgumentException(docid + " == null or contains no characters");
             }
-            this.mContext = context;
+            this.mWeakRef = new WeakReference<Context>(context);
             this.mDocid = docid;
         }
 
@@ -114,7 +115,10 @@ public class NewsDetailModelImpl implements INewsDetailModel {
             }
             // 如果缓存中没有该新闻详情, 则请求服务器.
             else {
-                requestNewsDetailFromServer(mContext, mDocid);
+                Context context = mWeakRef.get();
+                if (context != null) {
+                    requestNewsDetailFromServer(context, mDocid);
+                }
             }
         }
 
