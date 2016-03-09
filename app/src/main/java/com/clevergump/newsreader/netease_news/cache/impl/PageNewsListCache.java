@@ -10,6 +10,7 @@ import com.clevergump.newsreader.netease_news.bean.NeteaseNewsBase;
 import com.clevergump.newsreader.netease_news.bean.NeteaseNewsItem;
 import com.clevergump.newsreader.netease_news.dao.table.news_list.impl.NeteaseNewsListDaoImpl;
 import com.clevergump.newsreader.netease_news.fragment.manager.NewsFragmentManager;
+import com.clevergump.newsreader.netease_news.utils.EventBusUtils;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -46,6 +47,16 @@ public class PageNewsListCache extends PageNewsListCacheBase {
 
     public static PageNewsListCache getInstance () {
         return PageNewsListCacheImplHolder.INSTANCE;
+    }
+
+    @Override
+    public void registerEventBus() {
+        EventBusUtils.registerEventBus(this);
+    }
+
+    @Override
+    public void unregisterEventBus() {
+        EventBusUtils.unregisterEventBus(this);
     }
 
     private static class PageNewsListCacheImplHolder {

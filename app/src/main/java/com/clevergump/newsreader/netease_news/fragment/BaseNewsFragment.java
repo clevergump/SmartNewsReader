@@ -20,9 +20,14 @@ import com.clevergump.newsreader.netease_news.fragment.manager.NewsFragmentManag
 import com.clevergump.newsreader.netease_news.model.IPageNewsModel;
 import com.clevergump.newsreader.netease_news.model.impl.PageNewsModelImpl;
 import com.clevergump.newsreader.netease_news.presenter.impl.PageNewsListPresenter;
+import com.clevergump.newsreader.netease_news.utils.EventBusUtils;
+import com.clevergump.newsreader.netease_news.utils.IEventBusSubscriber;
 import com.clevergump.newsreader.netease_news.utils.LogUtils;
 import com.clevergump.newsreader.netease_news.view.IPageNewsView;
 import com.clevergump.newsreader.netease_news.view.impl.PageNewsPullToRefreshListView;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 新闻fragment的基类
@@ -42,6 +47,8 @@ public class BaseNewsFragment extends Fragment {
     protected PageNewsListPresenter bPageNewsListPresenter;
     protected String bNewsTabName;
     protected String bNewsTypeId;
+
+    private Set<IEventBusSubscriber> bEventBusSubscribers = new HashSet<IEventBusSubscriber>();
 
     protected int bCurrentPageNumber = FIRST_PAGE_NUMBER;
 
@@ -96,6 +103,7 @@ public class BaseNewsFragment extends Fragment {
         bNewsTabName = getArguments().getString(KEY_NEWS_TAB_NAME);
         bNewsTypeId = NewsFragmentManager.getInstance().getNewsTypeId(bNewsTabName);
         bPageNewsView = getPageNewsView(bActivity, inflater, bNewsTabName);
+        bEventBusSubscribers.add(bPageNewsView);
 
         // 每个Fragment实例都会执行一次生命周期方法. 所以每次执行时都会调用下面这句代码.
         // 而下面这句代码中包含了EventBus注册监听器的方法, 而EventBus的监听器是不允许重复注册的,
@@ -122,6 +130,15 @@ public class BaseNewsFragment extends Fragment {
 //        ToastUtils.showDebug(getTabName() + " onStart, 网络请求");
         LogUtils.i(getTabName() + "onStart");
         super.onStart();
+
+        // 因为为了节省资源, 我们在 Activity或 Fragment的 onStop()方法中取消对EventBus的注册, 所以当
+        // 一个页面从后台再回到前台, 就需要再次注册 EventBus, 所以对 EventBus的注册过程应该放在 Activity
+        // 或 Fragment的 onStart() 方法中执行, 而不是 onCreate()方法中执行.
+        for (IEventBusSubscriber subscriber : bEventBusSubscribers) {
+            if (!EventBusUtils.isRegistered(subscriber)) {
+                EventBusUtils.registerEventBus(subscriber);
+            }
+        }
     }
 
     @Override
@@ -140,6 +157,11 @@ public class BaseNewsFragment extends Fragment {
     public void onStop() {
         LogUtils.i(getTabName() + "onStop");
         super.onStop();
+        for (IEventBusSubscriber subscriber : bEventBusSubscribers) {
+            if (EventBusUtils.isRegistered(subscriber)) {
+                EventBusUtils.unregisterEventBus(subscriber);
+            }
+        }
     }
 
     @Override
@@ -180,8 +202,10 @@ public class BaseNewsFragment extends Fragment {
         if (Constant.isTestPtrListViewOnly) {
 //            pageNewsModel = new TestPtrListViewPageNewsModelImpl();
         } else {
+            PageNewsListCache pageNewsListCache = PageNewsListCache.getInstance();
             pageNewsModel = new PageNewsModelImpl(bActivity, bNewsTypeId,
-                    NeteaseNewsListDaoImpl.getInstance(), PageNewsListCache.getInstance());
+                    NeteaseNewsListDaoImpl.getInstance(), pageNewsListCache);
+            bEventBusSubscribers.add(pageNewsListCache);
         }
 
         bPageNewsListPresenter = new PageNewsListPresenter(bPageNewsView, pageNewsModel);

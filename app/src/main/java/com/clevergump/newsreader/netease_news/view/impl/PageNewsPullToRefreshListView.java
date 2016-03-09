@@ -30,6 +30,7 @@ import com.clevergump.newsreader.netease_news.fragment.manager.NewsFragmentManag
 import com.clevergump.newsreader.netease_news.presenter.impl.PageNewsListPresenter;
 import com.clevergump.newsreader.netease_news.utils.DateTimeUtils;
 import com.clevergump.newsreader.netease_news.utils.EventBusUtils;
+import com.clevergump.newsreader.netease_news.utils.IEventBusSubscriber;
 import com.clevergump.newsreader.netease_news.utils.LogUtils;
 import com.clevergump.newsreader.netease_news.utils.NetworkUtils;
 import com.clevergump.newsreader.netease_news.utils.ToastUtils;
@@ -49,7 +50,7 @@ import java.util.List;
  */
 public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
         implements OnScrollListener, PullToRefreshBase.OnRefreshListener<ListView>,
-        AdapterView.OnItemClickListener, Runnable {
+        AdapterView.OnItemClickListener, Runnable, IEventBusSubscriber {
 
     // 表示没有条目被点击, 或者点击的条目的标题都已经更新为灰色了.
     private static final int ITEM_CLICK_RESETED_POSITION = -1;
@@ -321,6 +322,16 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
                 mActivity.launchImageDetailActivity(this, mClickedItemDocid, title, imageUrls);
                 break;
         }
+    }
+
+    @Override
+    public void registerEventBus() {
+        EventBusUtils.registerEventBus(this);
+    }
+
+    @Override
+    public void unregisterEventBus() {
+        EventBusUtils.unregisterEventBus(this);
     }
 
     /**
@@ -751,10 +762,14 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
 
     @Override
     public void onCreate() {
-        // 保险起见, 多加一句判断.
-        if (!EventBusUtils.isRegistered(this)) {
-            EventBusUtils.registerEventBus(this);
-        }
+        // 该方法应该在该类所在的 Activity或 Fragment的 onStart()方法中执行, 因为为了节省资源, 我们在
+        // 该类所在的 Activity或 Fragment的 onStop()方法中取消对EventBus的注册, 所以当一个页面从后台再
+        // 回到前台, 就需要再次注册 EventBus, 所以对 EventBus的注册过程应该放在 Activity或 Fragment的
+        // onStart() 方法中进行.
+
+//        if (!EventBusUtils.isRegistered(this)) {
+//            EventBusUtils.registerEventBus(this);
+//        }
     }
 
     @Override
@@ -762,7 +777,11 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
         // 这句话不能少. 因为在这句话中要执行 Presenter的清理工作, 而Presenter的清理工作包括Model的清理
         // 以及Presenter内部定义的其他资源(例如: Handler的实例)的清理.
         super.clear();
-        EventBusUtils.unregisterEventBus(this);
+
+        // 这句话应该放在该类所在的 Activity或 Fragment的 onStop()方法中执行, 而不是在他们的 onDestroy()中执行.
+        // 因为当一个页面到后台后, 就应该取消 EventBus的注册以节省系统资源.
+//        EventBusUtils.unregisterEventBus(this);
+
         // 清理 MyHandler实例发送的所有的callbacks和messages.
         MyHandler.getInstance().removeCallbacksAndMessages(null);
     }

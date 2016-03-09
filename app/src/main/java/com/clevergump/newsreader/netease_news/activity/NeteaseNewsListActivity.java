@@ -9,6 +9,7 @@ import android.widget.TextView;
 import com.clevergump.newsreader.Constant;
 import com.clevergump.newsreader.R;
 import com.clevergump.newsreader.netease_news.adapter.NeteaseNewsPagerAdapter;
+import com.clevergump.newsreader.netease_news.utils.EventBusUtils;
 import com.clevergump.newsreader.netease_news.utils.LogUtils;
 import com.clevergump.newsreader.netease_news.utils.PropertiesUtils;
 import com.clevergump.newsreader.netease_news.utils.ToastUtils;
@@ -75,6 +76,9 @@ public class NeteaseNewsListActivity extends BaseActivity {
     protected void onStart() {
         LogUtils.i(getName() + "onStart");
         super.onStart();
+        if (mPageNewsView != null && !EventBusUtils.isRegistered(mPageNewsView)) {
+            mPageNewsView.registerEventBus();
+        }
     }
 
     @Override
@@ -99,6 +103,10 @@ public class NeteaseNewsListActivity extends BaseActivity {
     protected void onStop() {
         LogUtils.i(getName() + "onStop");
         super.onStop();
+
+        if (mPageNewsView != null && EventBusUtils.isRegistered(mPageNewsView)) {
+            mPageNewsView.unregisterEventBus();
+        }
     }
 
     @Override

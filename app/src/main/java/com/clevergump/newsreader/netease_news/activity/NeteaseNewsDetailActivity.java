@@ -79,7 +79,12 @@ public class NeteaseNewsDetailActivity extends BaseActivity implements View.OnCl
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_netease_news_detail);
         super.onCreate(savedInstanceState);
-        EventBusUtils.registerEventBus(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterEventBus();
     }
 
     @Override
@@ -91,12 +96,12 @@ public class NeteaseNewsDetailActivity extends BaseActivity implements View.OnCl
     @Override
     protected void onStart() {
         super.onStart();
+        registerEventBus();
         mNewsDetailPresenter.requestNewsDetail(this, mDocid);
     }
 
     @Override
     public void clear() {
-        EventBusUtils.unregisterEventBus(this);
         if (mNewsDetailPresenter != null) {
             mNewsDetailPresenter.clear();
         }
@@ -324,5 +329,19 @@ public class NeteaseNewsDetailActivity extends BaseActivity implements View.OnCl
 //        if (total == current) {
 //            ToastUtils.showDebug("图片加载进度100%");
 //        }
+    }
+
+    @Override
+    public void registerEventBus() {
+        if(!EventBusUtils.isRegistered(this)) {
+            EventBusUtils.registerEventBus(this);
+        }
+    }
+
+    @Override
+    public void unregisterEventBus() {
+        if(EventBusUtils.isRegistered(this)) {
+            EventBusUtils.unregisterEventBus(this);
+        }
     }
 }

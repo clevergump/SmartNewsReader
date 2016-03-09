@@ -8,7 +8,7 @@ import com.clevergump.newsreader.netease_news.cache.IPageNewsListCache;
 import com.clevergump.newsreader.netease_news.event.impl.OnGetLatestNewsListEvent;
 import com.clevergump.newsreader.netease_news.event.impl.base.BaseNewsListEvent;
 import com.clevergump.newsreader.netease_news.fragment.manager.NewsFragmentManager;
-import com.clevergump.newsreader.netease_news.utils.EventBusUtils;
+import com.clevergump.newsreader.netease_news.utils.IEventBusSubscriber;
 import com.clevergump.newsreader.netease_news.utils.LogUtils;
 
 import java.util.List;
@@ -21,11 +21,7 @@ import java.util.List;
  * @createTime 2015/12/10 15:53
  * @projectName NewsReader
  */
-public abstract class PageNewsListCacheBase implements IPageNewsListCache {
-
-    public PageNewsListCacheBase() {
-        EventBusUtils.registerEventBus(this);
-    }
+public abstract class PageNewsListCacheBase implements IPageNewsListCache, IEventBusSubscriber {
 
     /**
      * 异步子线程中接收并执行的事件
