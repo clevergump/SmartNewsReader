@@ -46,7 +46,7 @@ public class PageNewsModelImpl implements IPageNewsModel {
     private String mNewsTypeId;
     private INeteaseNewsListDao mNewsListDao;
     private INeteaseNewsDetailDao mNewsDatailDao;
-    private IPageNewsListCache mPageNewsListCache;
+    private static IPageNewsListCache mPageNewsListCache;
     private List<MyAsyncTask> mTasks = new LinkedList<MyAsyncTask>();
 
     public PageNewsModelImpl(Context context, String newsTypeId, INeteaseNewsListDao newsListDao,
@@ -201,7 +201,7 @@ public class PageNewsModelImpl implements IPageNewsModel {
     /**
      * 将新闻 ListView的 list数据存入缓存的任务
      */
-    private class PutNewsListToCacheTask extends MyAsyncTask<Void, Void, Void> {
+    private static class PutNewsListToCacheTask extends MyAsyncTask<Void, Void, Void> {
         private final String newsTypeId;
         private final List<NeteaseNewsItem> latestNewsList;
 
