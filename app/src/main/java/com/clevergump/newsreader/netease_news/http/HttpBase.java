@@ -1,12 +1,6 @@
 package com.clevergump.newsreader.netease_news.http;
 
-import android.content.Context;
-
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.Volley;
-
-import java.lang.ref.WeakReference;
 
 /**
  * @author zhangzhiyi
@@ -15,19 +9,17 @@ import java.lang.ref.WeakReference;
  * @projectName NewsReader
  */
 public abstract class HttpBase {
-    protected final WeakReference<Context> mContextWeakRef;
-
-    public HttpBase(Context context) {
-        mContextWeakRef = new WeakReference<Context>(context);
-    }
+//    protected final WeakReference<Context> mContextWeakRef;
+//
+//    public HttpBase(Context context) {
+//        mContextWeakRef = new WeakReference<Context>(context);
+//    }
 
     public void request() {
-        if (mContextWeakRef != null) {
-            Context context = mContextWeakRef.get();
-            RequestQueue queue = Volley.newRequestQueue(context);
+//        if (mContextWeakRef != null) {
             Request request = getRequest();
-            queue.add(request);
-        }
+            VolleyUtils.addToRequestQueue(request);
+//        }
     }
 
     protected abstract Request getRequest();

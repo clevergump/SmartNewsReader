@@ -185,7 +185,7 @@ public class PageNewsModelImpl implements IPageNewsModel {
             EventBusUtils.post(event);
         } else {
             // 联网请求服务器数据
-            new HttpGetNewsList(mContext, pageNumber, tabNewsUrl, newsTypeId).request();
+            new HttpGetNewsList(pageNumber, tabNewsUrl, newsTypeId).request();
         }
     }
 

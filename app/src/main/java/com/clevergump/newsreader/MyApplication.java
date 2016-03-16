@@ -20,7 +20,6 @@ import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -79,12 +78,12 @@ public class MyApplication extends Application {
                     .threadPriority(Thread.NORM_PRIORITY - 2)
                     .denyCacheImageMultipleSizesInMemory()
 
-              /* memoryCache() and memoryCacheSize() calls overlap each other */
+                    /* memoryCache() and memoryCacheSize() calls overlap(重复) each other */
                     // 内存缓存容量2MB
                     .memoryCache(new LruMemoryCache(2 * 1024 * 1024))
 
-              /* diskCache() and diskCacheFileNameGenerator() calls overlap each other */
-              /* diskCache(), diskCacheSize() and diskCacheFileCount calls overlap each other */
+                    /* diskCache() and diskCacheFileNameGenerator() calls overlap each other */
+                    /* diskCache(), diskCacheSize() and diskCacheFileCount calls overlap each other */
                     .tasksProcessingOrder(QueueProcessingType.LIFO)
                     // 硬盘缓存容量50MB
                     .diskCache(new LruDiskCache(imageDiskCacheDir, new Md5FileNameGenerator(),
@@ -92,19 +91,18 @@ public class MyApplication extends Application {
                     .defaultDisplayImageOptions(DisplayImageOptions.createSimple())
                     // 连接超时时间5s, 读取超时时间30s
                     .imageDownloader(new BaseImageDownloader(this, 5 * 1000, 30 * 1000));
-                    // .writeDebugLogs() // Remove for release app
-                    // .build();
-        } catch (IOException e) {
+
+            // 只有在DEBUG模式下, 才会开启图片加载框架 UIL的调试log开关.
+            if (Constant.DEBUG) {
+                configBuilder.writeDebugLogs();
+            }
+            ImageLoaderConfiguration config = configBuilder.build();
+            // 初始化图片加载框架 UIL
+            ImageLoader.getInstance().init(config);
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        // 配置是否打开UIL的调试开关
-        if (Constant.DEBUG && configBuilder != null) {
-            configBuilder.writeDebugLogs();
-        }
-        ImageLoaderConfiguration config = configBuilder.build();
-
-        // Initialize ImageLoader with configuration.
-        ImageLoader.getInstance().init(config);// 全局初始化此配置
     }
 
     /**

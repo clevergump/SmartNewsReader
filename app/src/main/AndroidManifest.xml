@@ -26,6 +26,13 @@
         </activity>
         <activity android:name=".netease_news.activity.NeteaseNewsDetailActivity"/>
         <activity android:name=".netease_news.activity.NeteaseImageDetailActivity"/>
+<!--        <activity android:name=".netease_news.activity.TestActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>-->
     </application>
 
 </manifest>

@@ -1,6 +1,5 @@
 package com.clevergump.newsreader.netease_news.http;
 
-import android.content.Context;
 import android.text.TextUtils;
 
 import com.android.volley.Request;
@@ -37,8 +36,7 @@ public class HttpGetNewsList<T extends BaseNewsFragment> extends HttpBase {
     private String mNewsTabUrl;
     private String mNewsTypeId;
 
-    public HttpGetNewsList(Context context, int pageNumber, String newsTabUrl, String newsTypeId) {
-        super(context);
+    public HttpGetNewsList(int pageNumber, String newsTabUrl, String newsTypeId) {
         if (pageNumber < 0) {
             throw new IllegalArgumentException(pageNumber + " < 0");
         }

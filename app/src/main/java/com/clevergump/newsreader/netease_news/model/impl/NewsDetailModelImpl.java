@@ -136,7 +136,7 @@ public class NewsDetailModelImpl implements INewsDetailModel {
             // 在发起http请求之前, 要先判断网络连接状况是否正常. 如果网络连接异常, 则无需发起http请求,
             // 可以直接发送一个网络异常的事件. 如果网络连接正常, 才会发起http请求.
             if (NetworkUtils.hasNetworkConnection()) {
-                new HttpGetNewsDetail(context, docid).request();
+                new HttpGetNewsDetail(docid).request();
             } else {
                 BaseNewsDetailEvent event = new NetworkFailsNewsDetailEvent(docid);
                 EventBusUtils.post(event);
