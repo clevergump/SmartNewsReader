@@ -7,6 +7,8 @@
 *.dex
 
 # Java class files
+/SmartNewsReader.iml
+/volley_library/build
 /app/build
 *.class
 
