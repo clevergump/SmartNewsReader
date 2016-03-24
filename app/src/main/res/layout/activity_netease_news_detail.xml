@@ -47,6 +47,15 @@
                 android:textSize="20sp"
                 android:gravity="center"/>
 
+<!--            <TextView
+                android:id="@+id/tv_netease_news_detail_title"
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:text="国家队队友力挺伊布登陆英超"
+                android:layout_below="@+id/netease_news_detail_title_bar_divider"
+                android:textSize="20sp"
+                android:gravity="center"/>-->
+
             <RelativeLayout
                 android:id="@+id/vg_source_ptime"
                 android:layout_width="match_parent"
@@ -73,24 +82,39 @@
                     android:layout_alignBottom="@+id/tv_netease_news_detail_source"/>
             </RelativeLayout>
 
-            <ImageView
-                android:id="@+id/iv_netease_news_detail_image"
+            <RelativeLayout
+                android:id="@+id/vg_image"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/vg_source_ptime"
-                android:layout_marginTop="5dp"
-                android:layout_centerHorizontal="true"
-                android:visibility="gone"/>
+                android:layout_marginTop="5dp">
+
+                <ImageView
+                    android:id="@+id/iv_netease_news_detail_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@mipmap/bg_image_loading"
+                    android:visibility="gone"/>
                 <!-- scaleType不能设置为fitXY, 否则图片本身会有不按比例的拉伸 -->
+
+                <com.clevergump.newsreader.netease_news.widget.ProgressCircle
+                    android:id="@+id/progressCircle_image"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_centerInParent="true"
+                    android:visibility="gone"/>
+            </RelativeLayout>
+
             <com.clevergump.newsreader.netease_news.widget.htmltextview.HtmlTextView
                 android:id="@+id/htv_netease_news_detail_body"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="5dp"
-                android:layout_below="@+id/iv_netease_news_detail_image"
+                android:layout_below="@+id/vg_image"
                 android:visibility="visible"
                 android:textSize="16sp"
                 android:layout_centerHorizontal="true" />
+
         </RelativeLayout>
     </ScrollView>
 </RelativeLayout>

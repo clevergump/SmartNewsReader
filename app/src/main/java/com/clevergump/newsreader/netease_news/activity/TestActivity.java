@@ -1,10 +1,10 @@
 package com.clevergump.newsreader.netease_news.activity;
 
 import android.app.Activity;
-import android.content.Context;
-import android.util.Log;
+import android.os.Bundle;
 
-import com.clevergump.newsreader.MyApplication;
+import com.clevergump.newsreader.R;
+import com.clevergump.newsreader.netease_news.utils.ToastUtils;
 
 /**
  * @author zhangzhiyi
@@ -16,11 +16,9 @@ public class TestActivity extends Activity {
     private static final String TAG = "TestActivity";
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        Context applicationContext = getApplicationContext();
-        Context appContext = MyApplication.getAppContext();
-        Log.i(TAG, "applicationContext = " + applicationContext);
-        Log.i(TAG, "appContext         = " + appContext);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_test);
+        ToastUtils.show(TAG);
     }
 }

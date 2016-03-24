@@ -14,9 +14,6 @@ import android.widget.TextView;
 import com.clevergump.newsreader.R;
 import com.clevergump.newsreader.netease_news.utils.ImageLoaderUtils;
 import com.clevergump.newsreader.netease_news.utils.LogUtils;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.assist.ImageScaleType;
-import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
@@ -41,8 +38,8 @@ public class NeteaseImageDetailPagerAdapter extends PagerAdapter {
     private Context mContext;
     // 图片url组成的list
     private List<String> mImageUrls;
-    // UIL框架进行图片加载时的一个配置选项.
-    private DisplayImageOptions mDisplayImageOptions;
+//    // UIL框架进行图片加载时的一个配置选项.
+//    private DisplayImageOptions mDisplayImageOptions;
     private ImageLoadingListener mImageLoadingListener;
     // 用于缓存ViewPager中各个页面View的容器. 设置只存储3个View对象, 也就是ViewPager中3个页面的View.
     private SparseArray<View> mPageViewCache = new SparseArray<View>(3);
@@ -139,16 +136,16 @@ public class NeteaseImageDetailPagerAdapter extends PagerAdapter {
     }
 
     private void initData() {
-        if (mDisplayImageOptions == null) {
-            mDisplayImageOptions = new DisplayImageOptions.Builder()
-                    .cacheInMemory(true)
-                    .cacheOnDisk(true)
-                // RGB565: 图片的每1px所占用的存储空间大小是 5+6+5=16bit=2字节
-                    .bitmapConfig(Bitmap.Config.ALPHA_8)
-                    .imageScaleType(ImageScaleType.IN_SAMPLE_POWER_OF_2)
-                    .displayer(new FadeInBitmapDisplayer(100))// 淡入
-                    .build();
-        }
+//        if (mDisplayImageOptions == null) {
+//            mDisplayImageOptions = new DisplayImageOptions.Builder()
+//                    .cacheInMemory(true)
+//                    .cacheOnDisk(true)
+//                // RGB565: 图片的每1px所占用的存储空间大小是 5+6+5=16bit=2字节
+//                    .bitmapConfig(Bitmap.Config.ALPHA_8)
+//                    .imageScaleType(ImageScaleType.IN_SAMPLE_POWER_OF_2)
+//                    .displayer(new FadeInBitmapDisplayer(100))// 淡入
+//                    .build();
+//        }
 
         if (mImageLoadingListener == null) {
             mImageLoadingListener = new SimpleImageLoadingListener() {
@@ -186,8 +183,7 @@ public class NeteaseImageDetailPagerAdapter extends PagerAdapter {
         View vgPageRootView = mPageViewCache.get(position);
         PageViewHolder holder = (PageViewHolder) vgPageRootView.getTag();
         String currentImageUrl = mImageUrls.get(position);
-        ImageLoaderUtils.displayImage(currentImageUrl, holder.ivImage, mDisplayImageOptions,
-                mImageLoadingListener, null);
+        ImageLoaderUtils.displayImage(currentImageUrl, holder.ivImage, mImageLoadingListener, null);
     }
 
     /**

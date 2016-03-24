@@ -11,7 +11,6 @@ import com.clevergump.newsreader.netease_news.utils.ToastUtils;
 import com.nostra13.universalimageloader.cache.disc.impl.ext.LruDiskCache;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
@@ -61,34 +60,30 @@ public class MyApplication extends Application {
         // /data/data/com.clevergump.newsreader/cache/imageCache
         // /storage/emulated/0/Android/data/com.clevergump.newsreader/cache/imageCache
         // /storage/sdcard0/Android/data/com.clevergump.newsreader/cache/imageCache
-        String imageDiskCachePath = ImageLoaderUtils.getDiskCachePath(getAppContext(), IMAGE_CACHE_DIR_NAME);
+        String imageDiskCachePath = ImageLoaderUtils.getDiskCachePath(getApplicationContext(), IMAGE_CACHE_DIR_NAME);
         LogUtils.i("图片在手机上的缓存路径: " + imageDiskCachePath);
 
         File imageDiskCacheDir = ImageLoaderUtils.makeAndGetImageDiskCacheDir(imageDiskCachePath);
 
-        ImageLoaderConfiguration.Builder configBuilder = null;
         try {
-            configBuilder = new ImageLoaderConfiguration.Builder(this)
-                    // .memoryCacheExtraOptions(480, 800) // max width, max
-                    // height，即保存的每个缓存文件的最大长宽
-                    // .discCacheExtraOptions(480, 800, CompressFormat.JPEG,
-                    // 75, null) // Can slow ImageLoader, use it carefully
-                    // (Better don't use it)设置缓存的详细信息，最好不要设置这个
-                    .threadPoolSize(3)// 线程池内加载的数量
+            ImageLoaderConfiguration.Builder configBuilder = new ImageLoaderConfiguration.Builder(this)
+                    .threadPoolSize(5)// 线程池内加载的数量
                     .threadPriority(Thread.NORM_PRIORITY - 2)
+                    // 同一张图片的多个尺寸的图只存储一个, 不会全部存储
                     .denyCacheImageMultipleSizesInMemory()
 
                     /* memoryCache() and memoryCacheSize() calls overlap(重复) each other */
+                    // 以下几个方法不能同时设置: memoryCache() 和 memoryCacheSize()
                     // 内存缓存容量2MB
                     .memoryCache(new LruMemoryCache(2 * 1024 * 1024))
-
-                    /* diskCache() and diskCacheFileNameGenerator() calls overlap each other */
-                    /* diskCache(), diskCacheSize() and diskCacheFileCount calls overlap each other */
+                    // 设置线程池中的图片队列为 LIFO队列, 即: 优先加载最后打开或者最后呈现出来的图片
                     .tasksProcessingOrder(QueueProcessingType.LIFO)
+                    /* diskCache() and diskCacheFileNameGenerator() calls overlap each other */
+                    /* diskCache(), diskCacheSize() and diskCacheFileCount() calls overlap each other */
+                    // 以下几个方法不能同时设置: diskCache(), diskCacheSize() and diskCacheFileCount(), diskCacheFileNameGenerator()
                     // 硬盘缓存容量50MB
                     .diskCache(new LruDiskCache(imageDiskCacheDir, new Md5FileNameGenerator(),
                             1L * 50 * 1024 * 1024))
-                    .defaultDisplayImageOptions(DisplayImageOptions.createSimple())
                     // 连接超时时间5s, 读取超时时间30s
                     .imageDownloader(new BaseImageDownloader(this, 5 * 1000, 30 * 1000));
 

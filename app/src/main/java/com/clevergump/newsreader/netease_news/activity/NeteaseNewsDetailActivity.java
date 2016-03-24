@@ -22,10 +22,12 @@ import com.clevergump.newsreader.netease_news.utils.EventBusUtils;
 import com.clevergump.newsreader.netease_news.utils.ImageLoaderUtils;
 import com.clevergump.newsreader.netease_news.utils.ToastUtils;
 import com.clevergump.newsreader.netease_news.view.INewsDetailView;
+import com.clevergump.newsreader.netease_news.widget.ProgressCircle;
 import com.clevergump.newsreader.netease_news.widget.htmltextview.HtmlTextView;
-import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingProgressListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+
+import java.lang.ref.WeakReference;
 
 /**
  * 网易新闻的新闻详情页面
@@ -37,11 +39,12 @@ import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListene
  */
 public class NeteaseNewsDetailActivity extends BaseActivity implements View.OnClickListener, INewsDetailView, ImageLoadingProgressListener {
 
-    /**************************** 常量 *********************************/
+    /*---------------------------- 常量 ------------------------------------*/
+
     private final String TAG = getClass().getSimpleName();
 
+    /*--------------------------- View -------------------------------------*/
 
-    /**************************** View *********************************/
     // 左上角的返回键
     private ImageView mIvBack;
     // 环形进度条, 显示在屏幕中心处用于表示内容正在加载中
@@ -57,6 +60,8 @@ public class NeteaseNewsDetailActivity extends BaseActivity implements View.OnCl
     private TextView mTvNewsDetailPtime;
     // 新闻图片
     private ImageView mIvNewsDetailImage;
+    // 加载图片的圆形进度条
+    private ProgressCircle mImageProgressCircle;
     // 新闻内容
     private HtmlTextView mHtvNewsDetailBody;
 
@@ -65,15 +70,15 @@ public class NeteaseNewsDetailActivity extends BaseActivity implements View.OnCl
     // 加载失败时的ViewStub所对应的布局View.
     private View mLoadFailContentView;
 
-    /**************************** 变量 *********************************/
+    /*---------------------------- 变量 ------------------------------------*/
+
     private NewsDetailPresenter mNewsDetailPresenter;
     // 当前该页面显示的新闻详情的docid
     private String mDocid;
     // 图片加载的监听器
     private SimpleImageLoadingListener mImageLoadingListener;
 
-
-    /*******************************************************************/
+    /*----------------------------------------------------------------------*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,6 +126,7 @@ public class NeteaseNewsDetailActivity extends BaseActivity implements View.OnCl
         mTvNewsDetailSource = findView(R.id.tv_netease_news_detail_source);
         mTvNewsDetailPtime = findView(R.id.tv_netease_news_detail_ptime);
         mIvNewsDetailImage = findView(R.id.iv_netease_news_detail_image);
+        mImageProgressCircle = findView(R.id.progressCircle_image);
         mHtvNewsDetailBody = findView(R.id.htv_netease_news_detail_body);
 
         /*********** 加载失败时的 ViewStub界面 ************/
@@ -134,32 +140,7 @@ public class NeteaseNewsDetailActivity extends BaseActivity implements View.OnCl
         mDocid = getIntent().getStringExtra(Constant.KEY_NETEASE_NEWS_DETAIL_DOCID);
 //        ToastUtils.showDebug("接收到的docid = " + (mDocid == null ? "null" : mDocid));
         mNewsDetailPresenter = new NewsDetailPresenter(this, new NewsDetailModelImpl());
-        mImageLoadingListener = new SimpleImageLoadingListener() {
-            @Override
-            public void onLoadingStarted(String imageUri, View view) {
-//                ToastUtils.showDebug("开始加载图片");
-            }
-
-            @Override
-            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-//                ToastUtils.showDebug("图片加载失败");
-            }
-
-            @Override
-            public void onLoadingCancelled(String imageUri, View view) {
-//                ToastUtils.showDebug("取消图片加载");
-            }
-
-            @Override
-            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-//                ToastUtils.showDebug("图片加载完毕");
-
-//                if (view != null && view instanceof ImageView) {
-//                    ((ImageView) view).setImageBitmap(loadedImage);
-//                }
-//                mIvNewsDetailImage.setVisibility(View.VISIBLE);
-            }
-        };
+        mImageLoadingListener = new NewsDetailImageLoadingListenterImpl(NeteaseNewsDetailActivity.this);
     }
 
     @Override
@@ -230,8 +211,8 @@ public class NeteaseNewsDetailActivity extends BaseActivity implements View.OnCl
      * @param imageUrl
      */
     private void setNewsDetailImage(ImageView iv, String imageUrl) {
-        ImageLoaderUtils.displayImage(imageUrl, iv, mImageLoadingListener, this);
-//        ImageLoaderUtils.displayImage(imageUrl, iv, null, null);
+        ImageLoaderUtils.displayImage(imageUrl, iv, mImageLoadingListener,
+                new NewsDetailImageLoadingProgressListenerImpl(NeteaseNewsDetailActivity.this));
     }
 
     /**
@@ -342,6 +323,54 @@ public class NeteaseNewsDetailActivity extends BaseActivity implements View.OnCl
     public void unregisterEventBus() {
         if(EventBusUtils.isRegistered(this)) {
             EventBusUtils.unregisterEventBus(this);
+        }
+    }
+
+    /*---------------------------- 内部类 ------------------------------------*/
+
+    /**
+     * 新闻详情页的图片加载过程的监听器
+     */
+    private static class NewsDetailImageLoadingListenterImpl extends SimpleImageLoadingListener {
+        private final WeakReference<NeteaseNewsDetailActivity> mWeakRefOuterActivity;
+
+        public NewsDetailImageLoadingListenterImpl(NeteaseNewsDetailActivity outerActivity) {
+            mWeakRefOuterActivity = new WeakReference<NeteaseNewsDetailActivity>(outerActivity);
+        }
+
+        @Override
+        public void onLoadingStarted(String imageUri, View view) {
+            NeteaseNewsDetailActivity outerActivity = mWeakRefOuterActivity.get();
+            if (outerActivity != null) {
+                outerActivity.mImageProgressCircle.setVisibility(View.VISIBLE);
+            }
+        }
+
+        @Override
+        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+            NeteaseNewsDetailActivity outerActivity = mWeakRefOuterActivity.get();
+            if (outerActivity != null) {
+                outerActivity.mImageProgressCircle.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    /**
+     * 新闻详情页的图片加载进度的监听器
+     */
+    private static class NewsDetailImageLoadingProgressListenerImpl implements ImageLoadingProgressListener {
+        private final WeakReference<NeteaseNewsDetailActivity> mWeakRefOuterActivity;
+
+        public NewsDetailImageLoadingProgressListenerImpl(NeteaseNewsDetailActivity outerActivity) {
+            mWeakRefOuterActivity = new WeakReference<NeteaseNewsDetailActivity>(outerActivity);
+        }
+
+        @Override
+        public void onProgressUpdate(String imageUri, View view, int current, int total) {
+            NeteaseNewsDetailActivity outerActivity = mWeakRefOuterActivity.get();
+            if (outerActivity != null) {
+                outerActivity.mImageProgressCircle.setProgress(current, total);
+            }
         }
     }
 }

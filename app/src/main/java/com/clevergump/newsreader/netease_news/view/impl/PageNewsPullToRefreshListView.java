@@ -38,6 +38,8 @@ import com.clevergump.newsreader.netease_news.view.impl.base.PageNewsPtrBaseView
 import com.handmark.pulltorefresh.library.ILoadingLayout;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -214,6 +216,8 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
         // 如果设置为true, 即显示indicator, 那么将会在PtrListView的第0个item的右上角显示IndicatorLayout
         // 所代表的View.
         mPtrLvNews.setShowIndicator(false);
+        // 设置ListView在手指离开屏幕自由滚动过程中(fling)不加载图片, 在停止状态(idle)以及手指滚动过程中(scroll)加载图片.
+        mPtrLvNews.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(), false, true));
         mPtrHeaderLoadingLayout = mPtrLvNews.getLoadingLayoutProxy(true, false);
         mPtrHeaderLoadingLayout.setLoadingDrawable(mActivity.getResources().getDrawable(R.mipmap.android));
         mPtrHeaderLoadingLayout.setPullLabel("下拉可以刷新");
