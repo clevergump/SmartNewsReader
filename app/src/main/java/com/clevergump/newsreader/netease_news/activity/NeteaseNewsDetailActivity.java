@@ -24,6 +24,7 @@ import com.clevergump.newsreader.netease_news.utils.ToastUtils;
 import com.clevergump.newsreader.netease_news.view.INewsDetailView;
 import com.clevergump.newsreader.netease_news.widget.ProgressCircle;
 import com.clevergump.newsreader.netease_news.widget.htmltextview.HtmlTextView;
+import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingProgressListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
@@ -340,14 +341,38 @@ public class NeteaseNewsDetailActivity extends BaseActivity implements View.OnCl
 
         @Override
         public void onLoadingStarted(String imageUri, View view) {
+            showProgressCircle();
+        }
+
+        @Override
+        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+            hideProgressCircle();
+        }
+
+        @Override
+        public void onLoadingCancelled(String imageUri, View view) {
+            hideProgressCircle();
+        }
+
+        @Override
+        public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+            hideProgressCircle();
+        }
+
+        /**
+         * 显示加载进度的圆
+         */
+        private void showProgressCircle() {
             NeteaseNewsDetailActivity outerActivity = mWeakRefOuterActivity.get();
             if (outerActivity != null) {
                 outerActivity.mImageProgressCircle.setVisibility(View.VISIBLE);
             }
         }
 
-        @Override
-        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+        /**
+         * 隐藏加载进度的圆
+         */
+        private void hideProgressCircle() {
             NeteaseNewsDetailActivity outerActivity = mWeakRefOuterActivity.get();
             if (outerActivity != null) {
                 outerActivity.mImageProgressCircle.setVisibility(View.GONE);
