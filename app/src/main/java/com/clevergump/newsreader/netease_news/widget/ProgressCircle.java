@@ -19,6 +19,8 @@ import com.clevergump.newsreader.netease_news.utils.DensityUtils;
  */
 public class ProgressCircle extends View {
 
+    /*---------------------------- 常量 -------------------------------*/
+
     private static final String TAG = ProgressCircle.class.getSimpleName();
     // 默认宽高的数值, 单位dp.
     public static final int DEF_SIZE_IN_DP = 50;
@@ -35,6 +37,7 @@ public class ProgressCircle extends View {
     // 绘制扇形的默认起始角度.
     private static final float DEF_PIE_STARGING_ANGLE = -90;
 
+    /*--------------------------- 普通字段 -------------------------------*/
 
     // 绘制圆的画笔
     private Paint mBorderPaint;
@@ -51,23 +54,7 @@ public class ProgressCircle extends View {
     // 绘制圆时, 调用 Canvas.drawCircle()方法时需要传入的半径值.
     private float mCircleRadius;
 
-
-    /****************** 下面是自定义属性 ***************************/
-//    <!-- 如果圆的边框是有宽度(厚度)的, 那么 circleRadius特指该圆的外边框的半径, 实际在绘制该圆时,
-//    绘制所用的半径是该 circleRadius减去圆边框厚度的 1/2后的值 -->
-//    <attr name="circleOuterRadius" format="dimension"/>
-//    <!-- 圆边框的宽度(厚度) -->
-//    <attr name="circleBorderWidth" format="dimension" />
-//    <!-- 圆边框的颜色 -->
-//    <attr name="circleBorderColor" format="color"/>
-//    <!-- 圆内扇形的颜色 -->
-//    <attr name="innerPieColor" format="color" />
-//    <!-- 绘制圆内扇形的起始角度 -->
-//    <attr name="innerPieStartingAngle" format="float"/>
-//    <!-- 绘制圆内扇形的最大进度 -->
-//    <attr name="innerPieMaxProgress" format="integer"/>
-//    <!-- 绘制圆内扇形的进度 -->
-//    <attr name="innerPieProgress" format="integer"/>
+    /*--------------------------- 代表自定义属性的字段 ----------------------*/
 
     // 圆边框的颜色
     private int mCircleBorderColor;
@@ -88,6 +75,7 @@ public class ProgressCircle extends View {
     // 实际宽高的一半, 通常用来和用户设置的圆的外边框的半径进行比较, 然后选择二者中的较小者作为圆的外边框半径的实际值.
     private int mHalfSize;
 
+    /*---------------------------------------------------------------------*/
 
     public ProgressCircle(Context context) {
         this(context, null);
@@ -168,7 +156,7 @@ public class ProgressCircle extends View {
         mInnerPieProgress = 0;
     }
 
-    /*********************** 私有方法 *********************************/
+    /*--------------------------- 私有方法 ---------------------------------*/
 
     /**
      * 进行所有初始化的操作
@@ -357,7 +345,8 @@ public class ProgressCircle extends View {
      * 相关数值, 例如: 实际的外边框半径, 实际的内边框半径, 实际使用 drawCircle()方法绘制圆时需要传入的半径等.
      */
     private void recalcValues() {
-        mHalfSize = getWidth() / 2;
+        // 实际宽高的1/2
+        mHalfSize = getWidth() >> 1;
         // 重新计算圆的外边框半径, 确保其值不能超过该控件本身的1/2尺寸.
         mCircleOuterRadius = Math.min(mHalfSize, mCircleOuterRadius);
         // 重新计算圆的边框厚度, 确保其值不能超过圆的外边框半径.
