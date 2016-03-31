@@ -23,7 +23,7 @@ import java.util.List;
  * @createTime 2015/11/30 23:50
  * @projectName NewsReader
  */
-public class NeteaseImageDetailActivity extends BaseActivity implements View.OnClickListener {
+public class NeteaseImageDetailActivity extends SimpleProxyActivity implements View.OnClickListener {
     /******************** 常量 ****************************/
 
 

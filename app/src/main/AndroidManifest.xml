@@ -17,15 +17,20 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".netease_news.activity.NeteaseNewsListActivity"
-            android:theme="@style/Theme.PageIndicatorDefaults">
+            android:theme="@style/Theme.PageIndicatorDefaults"
+            android:configChanges="orientation|keyboardHidden|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".netease_news.activity.NeteaseNewsDetailActivity"/>
-        <activity android:name=".netease_news.activity.NeteaseImageDetailActivity"/>
+        <activity
+            android:name=".netease_news.activity.NeteaseNewsDetailActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"/>
+        <activity
+            android:name=".netease_news.activity.NeteaseImageDetailActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"/>
 <!--        <activity android:name=".netease_news.activity.TestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -28,7 +28,7 @@ import java.util.List;
  * @createTime 2015/11/7 11:00
  * @projectName NewsReader
  */
-public class NeteaseNewsListActivity extends BaseActivity {
+public class NeteaseNewsListActivity extends SimpleProxyActivity {
 
 
     /***************************** 常量 ****************************************/

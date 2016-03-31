@@ -38,7 +38,7 @@ import java.lang.ref.WeakReference;
  * @createTime 2015/11/30 22:45
  * @projectName NewsReader
  */
-public class NeteaseNewsDetailActivity extends BaseActivity implements View.OnClickListener, INewsDetailView, ImageLoadingProgressListener {
+public class NeteaseNewsDetailActivity extends SimpleProxyActivity implements View.OnClickListener, INewsDetailView, ImageLoadingProgressListener {
 
     /*---------------------------- 常量 ------------------------------------*/
 
