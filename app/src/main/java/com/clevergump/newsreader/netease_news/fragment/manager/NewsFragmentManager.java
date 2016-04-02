@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 
 import com.clevergump.newsreader.netease_news.fragment.BaseNewsFragment;
 import com.clevergump.newsreader.netease_news.fragment.EntertainmentNewsFragment;
@@ -17,6 +18,8 @@ import com.clevergump.newsreader.netease_news.fragment.SportsNewsFragment;
 import com.clevergump.newsreader.netease_news.fragment.TechnologyNewsFragment;
 import com.clevergump.newsreader.netease_news.utils.LogUtils;
 
+import java.lang.ref.WeakReference;
+
 /**
  * 各个新闻fragment的统一管理类
  *
@@ -27,6 +30,8 @@ import com.clevergump.newsreader.netease_news.utils.LogUtils;
  */
 public class NewsFragmentManager {
 
+    private static final String TAG = NewsFragmentManager.class.getSimpleName();
+    public static final String LOG_ACTIVITY_HAS_BEEN_RECYCLED = "Activity has been recycled";
     private final int NEWS_INT_TYPE_ENTERTAINMENT = 0;
     private final int NEWS_INT_TYPE_FINANCE = 1;
     private final int NEWS_INT_TYPE_HEALTH = 2;
@@ -37,7 +42,8 @@ public class NewsFragmentManager {
     private final int NEWS_INT_TYPE_TECHNOLOGY = 7;
 
     private String mCurrentShowingFragmentTag;
-    private FragmentManager mFragmentManager;
+//    private FragmentManager mFragmentManager;
+    private WeakReference<FragmentManager> mFragmentMgrWeakRef;
 
     private NewsFragmentManager(){
     }
@@ -57,7 +63,12 @@ public class NewsFragmentManager {
      */
     public BaseNewsFragment switchNewsFragment(FragmentActivity activity, String newsTabName){
         setFragmentManager(activity);
-        FragmentTransaction transaction = mFragmentManager.beginTransaction();
+        FragmentManager fragmentManager = mFragmentMgrWeakRef.get();
+        if (fragmentManager == null) {
+            Log.w(TAG, LOG_ACTIVITY_HAS_BEEN_RECYCLED);
+            return new BaseNewsFragment();
+        }
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
         BaseNewsFragment f = transactFragment(newsTabName, transaction);
         transaction.commit();
 //      transaction.commitAllowingStateLoss();
@@ -262,11 +273,16 @@ public class NewsFragmentManager {
 
         // 接下来要显示的fragment的tag不为null的前提下. 其实如果查询不到tag的话, 会在先前就已经抛出异常了.
         if (nextToShowFragmentTag != null) {
+            FragmentManager fragmentManager = mFragmentMgrWeakRef.get();
+            if (fragmentManager == null) {
+                Log.w(TAG, LOG_ACTIVITY_HAS_BEEN_RECYCLED);
+                return new BaseNewsFragment();
+            }
 
             /****************** 当前正在显示的 fragment *****************************/
             // 如果记录表明, 曾经有fragment显示过 (但此时可能不一定正在显示).
             if (mCurrentShowingFragmentTag != null) {
-                currentShowingFragment = (BaseNewsFragment) mFragmentManager.findFragmentByTag(mCurrentShowingFragmentTag);
+                currentShowingFragment = (BaseNewsFragment) fragmentManager.findFragmentByTag(mCurrentShowingFragmentTag);
                 // 如果transaction的fragment栈中存在fragment(当前不一定显示)
                 if (currentShowingFragment != null) {
                     // 如果接下来要显示的fragment就是后台任务栈中最近一次添加进去的那个fragment
@@ -282,7 +298,7 @@ public class NewsFragmentManager {
             }
 
             /****************** 接下来要显示的 fragment *********************/
-            nextToShowFragment = (BaseNewsFragment) mFragmentManager.findFragmentByTag(nextToShowFragmentTag);
+            nextToShowFragment = (BaseNewsFragment) fragmentManager.findFragmentByTag(nextToShowFragmentTag);
             // 如果接下来要显示的fragment, 在transaction的fragment栈中不存在, 那么需要添加进去.
             if(nextToShowFragment == null){
                 nextToShowFragment = createNewsFragment(nextNewsTabName);
@@ -321,8 +337,9 @@ public class NewsFragmentManager {
     }
 
     private void setFragmentManager(FragmentActivity activity) {
-        if(mFragmentManager == null){
-            mFragmentManager = activity.getSupportFragmentManager();
+        if(mFragmentMgrWeakRef == null) {
+            FragmentManager fragmentManager = activity.getSupportFragmentManager();
+            mFragmentMgrWeakRef = new WeakReference<FragmentManager>(fragmentManager);
         }
     }
 }
