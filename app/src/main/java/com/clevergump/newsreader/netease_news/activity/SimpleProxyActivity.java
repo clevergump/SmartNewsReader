@@ -2,6 +2,7 @@ package com.clevergump.newsreader.netease_news.activity;
 
 import android.os.Bundle;
 
+import com.clevergump.newsreader.Constant;
 import com.clevergump.newsreader.netease_news.utils.ToastUtils;
 
 /**
@@ -16,12 +17,16 @@ public abstract class SimpleProxyActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ToastUtils.show(getClass().getSimpleName() + " onCreate");
+        if (Constant.DEBUG) {
+            ToastUtils.show(getClass().getSimpleName() + " onCreate");
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        ToastUtils.show(getClass().getSimpleName() + " onDestroy");
+        if (Constant.DEBUG) {
+            ToastUtils.show(getClass().getSimpleName() + " onDestroy");
+        }
     }
 }
