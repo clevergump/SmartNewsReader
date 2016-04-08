@@ -10,7 +10,7 @@ package com.clevergump.newsreader;
  */
 public interface Constant {
     // 调试开关
-    boolean DEBUG = true;
+    boolean DEBUG = false;
 
     // 是否是只调试 ptrListView的下拉功能及数据显示功能, 即: 忽略http联网加载的功能.
     boolean isTestPtrListViewOnly = false;
