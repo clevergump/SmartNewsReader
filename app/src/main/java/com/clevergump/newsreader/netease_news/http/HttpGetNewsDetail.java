@@ -6,6 +6,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.clevergump.newsreader.Constant;
 import com.clevergump.newsreader.netease_news.bean.NeteaseNewsDetail;
 import com.clevergump.newsreader.netease_news.event.impl.NetworkFailsNewsDetailEvent;
 import com.clevergump.newsreader.netease_news.event.impl.OnGetNewsDetailEvent;
@@ -60,7 +61,9 @@ public class HttpGetNewsDetail extends HttpBase {
     private class GetNewsDetailResponseListener implements Response.Listener<JSONObject> {
         @Override
         public void onResponse(JSONObject jsonObject) {
-            LogUtils.i(TAG, jsonObject.toString());
+            if (Constant.DEBUG) {
+                LogUtils.d(TAG, jsonObject.toString());
+            }
             NeteaseNewsDetail newsDetail = parseResponseData(jsonObject, mDocid);
             BaseNewsDetailEvent event = null;
             // 如果从服务器获取到的最新的新闻详情数据不为null

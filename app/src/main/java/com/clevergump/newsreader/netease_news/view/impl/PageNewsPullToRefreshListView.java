@@ -236,8 +236,10 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
         if (lastRefreshTimeMillis != LAST_UPDATE_TIME_INIT_VALUE) {
             String lastUpdateTimeDesc = DateTimeUtils.getLastUpdateTimeDesc(lastRefreshTimeMillis);
             mPtrHeaderLoadingLayout.setLastUpdatedLabel(lastUpdateTimeDesc);
-            LogUtils.i(mCurrNewsTabName + "---上次更新时间:" + DateTimeUtils.getFormattedTime(lastRefreshTimeMillis)
-                    + ", 毫秒: " + lastRefreshTimeMillis + ", " + lastUpdateTimeDesc);
+            if (Constant.DEBUG) {
+                LogUtils.d(mCurrNewsTabName + "---上次更新时间:" + DateTimeUtils.getFormattedTime(lastRefreshTimeMillis)
+                        + ", 毫秒: " + lastRefreshTimeMillis + ", " + lastUpdateTimeDesc);
+            }
         } else {
             mPtrHeaderLoadingLayout.setLastUpdatedLabel("先前未曾更新过");
         }
@@ -440,7 +442,9 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
         }
 
         else if (e instanceof TestNewsListEvent) {
-            ToastUtils.showDebug("测试数据");
+            if (Constant.DEBUG) {
+                ToastUtils.showDebug("测试数据");
+            }
         }
     }
 
@@ -485,6 +489,15 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
         int firstVisiblePosition = mLvNewsInternal.getFirstVisiblePosition();
         int lastVisiblePosition = mLvNewsInternal.getLastVisiblePosition();
         for (int i = firstVisiblePosition; i <= lastVisiblePosition; i++) {
+            // 解决crash bug:
+            // 当 ListView被拉到最底部从而在最底部显示出 FooterView的时候 (即: 在连网状态下, 显示
+            // "没有更多数据了", 或者在断网情况下, 显示"加载失败, 请点击重试"的 FooterView), 由于
+            // FooterView也被算作 visible item, 但却不在 adapter内的list范围内, 所以需要将最后一个
+            // visible item 为 FooterView 时的情况舍弃掉.
+            int listItemCount = mNewsListAdapter.getCount();
+            if (i >= listItemCount) {
+                break;
+            }
             Object item = mNewsListAdapter.getItem(i);
             if (item instanceof NeteaseNewsItem && mClickedItemDocid.equals(((NeteaseNewsItem)item).docid)) {
                 // 从ListView中获取被点击的那个item的View
@@ -618,8 +631,8 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
         }
         if (!Constant.isTestPtrListViewOnly) {
             List<NeteaseNewsItem> latestNewsList = event.getNewsList();
-            mPageNewsListPresenter.putToCache(event.getNewsType(), latestNewsList);
             if (latestNewsList != null && latestNewsList.size() > 0) {
+                mPageNewsListPresenter.putToCache(event.getNewsType(), latestNewsList);
                 if (NextDataIncomingType.REPLACE.equals(mNextDataIncomingType)) {
                     mNeteaseNewsItems.clear();
                 }
@@ -766,7 +779,9 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
         mLvNewsTotalItemCount = totalItemCount;
         mLvNewsLastVisibleItem = firstVisibleItem + visibleItemCount;
-        LogUtils.i(TAG, "lastVisibleItem = " + mLvNewsLastVisibleItem + ", visibleItemCount = " + mLvNewsTotalItemCount);
+        if (Constant.DEBUG) {
+            LogUtils.d(TAG, "lastVisibleItem = " + mLvNewsLastVisibleItem + ", visibleItemCount = " + mLvNewsTotalItemCount);
+        }
     }
 
     @Override

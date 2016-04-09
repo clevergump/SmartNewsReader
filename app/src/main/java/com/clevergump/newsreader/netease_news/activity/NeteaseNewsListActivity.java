@@ -67,14 +67,18 @@ public class NeteaseNewsListActivity extends SimpleProxyActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        LogUtils.i(getName() + "onCreate");
+        if (Constant.DEBUG) {
+            LogUtils.d(getName() + "onCreate");
+        }
         setContentView(R.layout.activity_netease_news_list);
         super.onCreate(savedInstanceState);
     }
 
     @Override
     protected void onStart() {
-        LogUtils.i(getName() + "onStart");
+        if (Constant.DEBUG) {
+            LogUtils.d(getName() + "onStart");
+        }
         super.onStart();
         if (mPageNewsView != null && !EventBusUtils.isRegistered(mPageNewsView)) {
             mPageNewsView.registerEventBus();
@@ -83,25 +87,33 @@ public class NeteaseNewsListActivity extends SimpleProxyActivity {
 
     @Override
     protected void onResume() {
-        LogUtils.i(getName() + "onResume");
+        if (Constant.DEBUG) {
+            LogUtils.d(getName() + "onResume");
+        }
         super.onResume();
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        LogUtils.i(getName() + "onSaveInstanceState");
+        if (Constant.DEBUG) {
+            LogUtils.d(getName() + "onSaveInstanceState");
+        }
         super.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onPause() {
-        LogUtils.i(getName() + "onPause");
+        if (Constant.DEBUG) {
+            LogUtils.d(getName() + "onPause");
+        }
         super.onPause();
     }
 
     @Override
     protected void onStop() {
-        LogUtils.i(getName() + "onStop");
+        if (Constant.DEBUG) {
+            LogUtils.d(getName() + "onStop");
+        }
         super.onStop();
 
         if (mPageNewsView != null && EventBusUtils.isRegistered(mPageNewsView)) {
@@ -111,13 +123,17 @@ public class NeteaseNewsListActivity extends SimpleProxyActivity {
 
     @Override
     protected void onRestart() {
-        LogUtils.i(getName() + "onRestart");
+        if (Constant.DEBUG) {
+            LogUtils.d(getName() + "onRestart");
+        }
         super.onRestart();
     }
 
     @Override
     protected void onDestroy() {
-        LogUtils.i(getName() + "onDestroy");
+        if (Constant.DEBUG) {
+            LogUtils.d(getName() + "onDestroy");
+        }
         super.onDestroy();
     }
 

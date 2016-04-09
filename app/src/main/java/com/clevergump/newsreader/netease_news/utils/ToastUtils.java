@@ -8,6 +8,7 @@ import com.clevergump.newsreader.MyApplication;
 
 /**
  * toast工具类
+ * 日志安全, 请参考 http://blog.csdn.net/clevergump/article/details/50670815
  *
  * @author zhangzhiyi
  * @version 1.0

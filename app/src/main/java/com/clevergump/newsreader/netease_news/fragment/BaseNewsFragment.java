@@ -78,7 +78,9 @@ public class BaseNewsFragment extends Fragment {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        LogUtils.i(getTabName() + "onCreate");
+        if (Constant.DEBUG) {
+            LogUtils.d(getTabName() + "onCreate");
+        }
         super.onCreate(savedInstanceState);
         mActivityAttached = (NeteaseNewsListActivity) getActivity();
 //        EventBusUtils.registerEventBus(this);
@@ -99,7 +101,9 @@ public class BaseNewsFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        LogUtils.i(getTabName() + "onCreateView");
+        if (Constant.DEBUG) {
+            LogUtils.d(getTabName() + "onCreateView");
+        }
         mNewsTabName = getArguments().getString(KEY_NEWS_TAB_NAME);
         mNewsTypeId = NewsFragmentManager.getInstance().getNewsTypeId(mNewsTabName);
         mPageNewsView = getPageNewsView(mActivityAttached, inflater, mNewsTabName);
@@ -117,7 +121,9 @@ public class BaseNewsFragment extends Fragment {
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        LogUtils.i(getTabName() + "onActivityCreated");
+        if (Constant.DEBUG) {
+            LogUtils.d(getTabName() + "onActivityCreated");
+        }
         super.onActivityCreated(savedInstanceState);
         initData();
 
@@ -128,7 +134,9 @@ public class BaseNewsFragment extends Fragment {
     @Override
     public void onStart() {
 //        ToastUtils.showDebug(getTabName() + " onStart, 网络请求");
-        LogUtils.i(getTabName() + "onStart");
+        if (Constant.DEBUG) {
+            LogUtils.d(getTabName() + "onStart");
+        }
         super.onStart();
 
         // 因为为了节省资源, 我们在 Activity或 Fragment的 onStop()方法中取消对EventBus的注册, 所以当
@@ -143,19 +151,25 @@ public class BaseNewsFragment extends Fragment {
 
     @Override
     public void onResume() {
-        LogUtils.i(getTabName() + "onResume");
+        if (Constant.DEBUG) {
+            LogUtils.d(getTabName() + "onResume");
+        }
         super.onResume();
     }
 
     @Override
     public void onPause() {
-        LogUtils.i(getTabName() + "onPause");
+        if (Constant.DEBUG) {
+            LogUtils.d(getTabName() + "onPause");
+        }
         super.onPause();
     }
 
     @Override
     public void onStop() {
-        LogUtils.i(getTabName() + "onStop");
+        if (Constant.DEBUG) {
+            LogUtils.d(getTabName() + "onStop");
+        }
         super.onStop();
         for (IEventBusSubscriber subscriber : mEventBusSubscribers) {
             if (EventBusUtils.isRegistered(subscriber)) {
@@ -166,13 +180,17 @@ public class BaseNewsFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
-        LogUtils.i(getTabName() + "onDestroyView");
+        if (Constant.DEBUG) {
+            LogUtils.d(getTabName() + "onDestroyView");
+        }
         super.onDestroyView();
     }
 
     @Override
     public void onDestroy() {
-        LogUtils.i(getTabName() + "clear");
+        if (Constant.DEBUG) {
+            LogUtils.d(getTabName() + "onDestroy");
+        }
         super.onDestroy();
 
         // 这个onDestroy()的调用很有必要. 因为在该方法中可以执行"取消监听器的注册", 清理Handler发出
@@ -183,7 +201,9 @@ public class BaseNewsFragment extends Fragment {
 
     @Override
     public void onDetach() {
-        LogUtils.i(getTabName() + "onDetach");
+        if (Constant.DEBUG) {
+            LogUtils.d(getTabName() + "onDetach");
+        }
         super.onDetach();
     }
 

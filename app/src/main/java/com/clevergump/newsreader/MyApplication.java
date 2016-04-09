@@ -38,7 +38,9 @@ public class MyApplication extends Application {
     public static Handler mToastDebugHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            ToastUtils.showDebug((CharSequence) msg.obj);
+            if (Constant.DEBUG) {
+                ToastUtils.showDebug((CharSequence) msg.obj);
+            }
         }
     };
 
@@ -61,7 +63,9 @@ public class MyApplication extends Application {
         // /storage/emulated/0/Android/data/com.clevergump.newsreader/cache/imageCache
         // /storage/sdcard0/Android/data/com.clevergump.newsreader/cache/imageCache
         String imageDiskCachePath = ImageLoaderUtils.getDiskCachePath(getApplicationContext(), IMAGE_CACHE_DIR_NAME);
-        LogUtils.i("图片在手机上的缓存路径: " + imageDiskCachePath);
+        if (Constant.DEBUG) {
+            LogUtils.d("图片在手机上的缓存路径: " + imageDiskCachePath);
+        }
 
         File imageDiskCacheDir = ImageLoaderUtils.makeAndGetImageDiskCacheDir(imageDiskCachePath);
 

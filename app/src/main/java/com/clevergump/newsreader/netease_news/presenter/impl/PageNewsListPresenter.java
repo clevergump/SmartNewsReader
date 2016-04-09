@@ -2,6 +2,7 @@ package com.clevergump.newsreader.netease_news.presenter.impl;
 
 import android.os.Handler;
 
+import com.clevergump.newsreader.Constant;
 import com.clevergump.newsreader.netease_news.adapter.NeteaseNewsListAdapter;
 import com.clevergump.newsreader.netease_news.bean.NeteaseNewsItem;
 import com.clevergump.newsreader.netease_news.model.IPageNewsModel;
@@ -73,7 +74,9 @@ public class PageNewsListPresenter implements IPresenter {
         iView.setNextDataIncomingType(shouldRefreshWholePageData);
         String tabNewsUrl = iModel.getTabNewsUrl(newsTabName, currPageNumber);
         String newsTypeId = iModel.getNewsTypeId(newsTabName);
-        ToastUtils.showDebug("要加载的页码 == " + currPageNumber);
+        if (Constant.DEBUG) {
+            ToastUtils.showDebug("要加载的页码 == " + currPageNumber);
+        }
         iModel.requestPageNews(tabNewsUrl, currPageNumber, newsTypeId, shouldLoadCache);
     }
 

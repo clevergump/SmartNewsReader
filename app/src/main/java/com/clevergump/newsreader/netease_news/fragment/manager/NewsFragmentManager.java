@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 
+import com.clevergump.newsreader.Constant;
 import com.clevergump.newsreader.netease_news.fragment.BaseNewsFragment;
 import com.clevergump.newsreader.netease_news.fragment.EntertainmentNewsFragment;
 import com.clevergump.newsreader.netease_news.fragment.FinanceNewsFragment;
@@ -72,7 +73,9 @@ public class NewsFragmentManager {
         BaseNewsFragment f = transactFragment(newsTabName, transaction);
         transaction.commit();
 //      transaction.commitAllowingStateLoss();
-        LogUtils.i(f.getTabName() + "------ transaction commit");
+        if (Constant.DEBUG) {
+            LogUtils.d(f.getTabName() + "------ transaction commit");
+        }
         return f;
     }
 

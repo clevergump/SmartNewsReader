@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.clevergump.newsreader.Constant;
 import com.clevergump.newsreader.R;
 import com.clevergump.newsreader.netease_news.utils.ImageLoaderUtils;
 import com.clevergump.newsreader.netease_news.utils.LogUtils;
@@ -110,7 +111,9 @@ public class NeteaseImageDetailPagerAdapter extends PagerAdapter {
     // position = 2, mVgPageRootView = android.widget.RelativeLayout{5299de28 V.E..... ......ID 0,0-0,0 #7f0b0032 app:id/vg_image_pager_root}
         // 根据上述log可知, 每一页所对应的整个内容的View对象其实是不同的对象, 也就是, 每一次inflate相同的
         // 布局文件, 其实就是一次new View的过程. 所以必须考虑View对象的复用, 因此就有了 mPageViewCache的设计.
-        LogUtils.i("position = " + position + ", mVgPageRootView = " + mVgPageRootView);
+        if (Constant.DEBUG) {
+            LogUtils.d("position = " + position + ", mVgPageRootView = " + mVgPageRootView);
+        }
 
         return mVgPageRootView;
     }

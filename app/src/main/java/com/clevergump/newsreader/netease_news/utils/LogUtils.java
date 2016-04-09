@@ -6,6 +6,7 @@ import com.clevergump.newsreader.Constant;
 
 /**
  * log工具类
+ * 日志安全, 请参考 http://blog.csdn.net/clevergump/article/details/50670815
  *
  * @author zhangzhiyi
  * @version 1.0
@@ -50,22 +51,32 @@ public class LogUtils {
     /*************** APP的全局log *******************/
 
     public static void e(String appMsg) {
-        e(TAG_APP, appMsg);
+        if (Constant.DEBUG) {
+            Log.e(TAG_APP, appMsg);
+        }
     }
 
     public static void w(String appMsg) {
-        w(TAG_APP, appMsg);
+        if (Constant.DEBUG) {
+            Log.w(TAG_APP, appMsg);
+        }
     }
 
     public static void i(String appMsg) {
-        i(TAG_APP, appMsg);
+        if (Constant.DEBUG) {
+            Log.i(TAG_APP, appMsg);
+        }
     }
 
     public static void d(String appMsg) {
-        d(TAG_APP, appMsg);
+        if (Constant.DEBUG) {
+            Log.d(TAG_APP, appMsg);
+        }
     }
 
     public static void v(String appMsg) {
-        v(TAG_APP, appMsg);
+        if (Constant.DEBUG) {
+            Log.v(TAG_APP, appMsg);
+        }
     }
 }
