@@ -489,15 +489,24 @@ public class PageNewsPullToRefreshListView extends PageNewsPtrBaseView
         int firstVisiblePosition = mLvNewsInternal.getFirstVisiblePosition();
         int lastVisiblePosition = mLvNewsInternal.getLastVisiblePosition();
         for (int i = firstVisiblePosition; i <= lastVisiblePosition; i++) {
-            // 解决crash bug:
+            // 修复crash bug:
             // 当 ListView被拉到最底部从而在最底部显示出 FooterView的时候 (即: 在连网状态下, 显示
             // "没有更多数据了", 或者在断网情况下, 显示"加载失败, 请点击重试"的 FooterView), 由于
             // FooterView也被算作 visible item, 但却不在 adapter内的list范围内, 所以需要将最后一个
             // visible item 为 FooterView 时的情况舍弃掉.
+            //
+            // 重现该 bug, 需要满足的条件是:
+            // 在显示 FooterView的那个页面中, 点击某个还未读过的条目, 然后该条目的内容能够完全显示出来,
+            // 从而在退出详情页回到先前的ListView页面后, 才会被该方法认为我们刚才已经成功阅读了这个条目,
+            // 然后会将该条目的标题置灰, 这时才会重现该 bug. 而要想满足这个重现的条件, 也只能去点击包含
+            // 3张图片的那些条目, 因为图片在加载 ListView的时候已经加载了, 所以才能保证不论是联网还是断网
+            // 状态下, 点进去看的时候, 都能确保系统认为我们阅读成功. 然后才会在退出详情页后将ListView中该
+            // 条目的标题置灰, 也只有这时才会去遍历当前页中所有visible的item, 才会出现该bug.
             int listItemCount = mNewsListAdapter.getCount();
             if (i >= listItemCount) {
                 break;
             }
+
             Object item = mNewsListAdapter.getItem(i);
             if (item instanceof NeteaseNewsItem && mClickedItemDocid.equals(((NeteaseNewsItem)item).docid)) {
                 // 从ListView中获取被点击的那个item的View
