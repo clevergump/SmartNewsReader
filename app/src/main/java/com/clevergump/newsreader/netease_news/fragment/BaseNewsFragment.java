@@ -25,6 +25,7 @@ import com.clevergump.newsreader.netease_news.utils.IEventBusSubscriber;
 import com.clevergump.newsreader.netease_news.utils.LogUtils;
 import com.clevergump.newsreader.netease_news.view.IPageNewsView;
 import com.clevergump.newsreader.netease_news.view.impl.PageNewsPullToRefreshListView;
+import com.umeng.analytics.MobclickAgent;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -155,6 +156,7 @@ public class BaseNewsFragment extends Fragment {
             LogUtils.d(getTabName() + "onResume");
         }
         super.onResume();
+        MobclickAgent.onPageStart(getClass().getSimpleName());
     }
 
     @Override
@@ -163,6 +165,7 @@ public class BaseNewsFragment extends Fragment {
             LogUtils.d(getTabName() + "onPause");
         }
         super.onPause();
+        MobclickAgent.onPageEnd(getClass().getSimpleName());
     }
 
     @Override

@@ -14,6 +14,8 @@ import com.clevergump.newsreader.netease_news.utils.LogUtils;
 import com.clevergump.newsreader.netease_news.utils.PropertiesUtils;
 import com.clevergump.newsreader.netease_news.utils.ToastUtils;
 import com.clevergump.newsreader.netease_news.view.IPageNewsView;
+import com.umeng.analytics.AnalyticsConfig;
+import com.umeng.analytics.MobclickAgent;
 import com.viewpagerindicator.TabPageIndicator;
 
 import java.io.Serializable;
@@ -72,6 +74,8 @@ public class NeteaseNewsListActivity extends SimpleProxyActivity {
         }
         setContentView(R.layout.activity_netease_news_list);
         super.onCreate(savedInstanceState);
+        // 设置友盟统计以加密的方式来传输日志
+        AnalyticsConfig.enableEncrypt(true);
     }
 
     @Override
@@ -143,6 +147,8 @@ public class NeteaseNewsListActivity extends SimpleProxyActivity {
         if(mCurrPressTimeMillis - mPrevPressTimeMillis < EXIT_APP_BACK_PRESSED_INTERVAL) {
             super.onBackPressed();
             finish();
+
+            MobclickAgent.onKillProcess(this);
             // 销毁当前应用所在的进程。如果不执行这句代码, 那么只是该Activity结束了，但该
             // APP所属的进程仍然在后台运行，该APP所持有的静态变量依然在内存中不能得到释放，
             // 就有可能在下次运行该APP时造成异常 IllegalStateException: Can not perform
