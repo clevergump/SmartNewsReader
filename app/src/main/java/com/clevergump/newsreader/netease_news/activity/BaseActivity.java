@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
+import com.umeng.analytics.MobclickAgent;
+
 public abstract class BaseActivity extends FragmentActivity {
 
     @Override
@@ -13,6 +15,18 @@ public abstract class BaseActivity extends FragmentActivity {
         initView();
         initData();
         setListenerOrAdapter();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onResume(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPause(this);
     }
 
     /**

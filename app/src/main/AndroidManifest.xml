@@ -2,6 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.clevergump.newsreader" >
 
+    <!-- 友盟统计 -->
+    <uses-sdk android:minSdkVersion="4"></uses-sdk>
+    <!-- 检测联网方式，区分用户设备使用的是2G、3G或是WiFi -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
+    <!-- 获取用户设备的mac地址，在平板设备上，无法通过imei标示设备，我们会将mac地址作为用户的唯一标识 -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!-- 获取用户设备的IMEI，通过IMEI和mac来唯一的标识用户。 -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
+
     <!-- 联网时需要申请的权限 -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <!-- 检查是否有网络时需要申请的权限 -->
@@ -38,6 +47,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>-->
+
+
+        <!-- 友盟统计 -->
+        <meta-data android:value="5718f4efe0f55ace980026c4" android:name="UMENG_APPKEY"></meta-data>
+        <meta-data android:value="wandoujia" android:name="UMENG_CHANNEL"/>
+
     </application>
 
 </manifest>
