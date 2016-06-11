@@ -18,6 +18,7 @@ import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
 import com.umeng.analytics.MobclickAgent;
+import com.umeng.update.UpdateConfig;
 
 import java.io.File;
 import java.util.HashMap;
@@ -49,7 +50,9 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         // 使用友盟集成测试模式
-        MobclickAgent.setDebugMode(true);
+        MobclickAgent.setDebugMode(Constant.DEBUG);
+        // 友盟更新log输出
+        UpdateConfig.setDebug(Constant.DEBUG);
         mAppContext = this;
         // 初始化图片加载框架.
         initImageLoader();

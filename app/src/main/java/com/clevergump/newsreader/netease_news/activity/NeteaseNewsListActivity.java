@@ -14,8 +14,8 @@ import com.clevergump.newsreader.netease_news.utils.LogUtils;
 import com.clevergump.newsreader.netease_news.utils.PropertiesUtils;
 import com.clevergump.newsreader.netease_news.utils.ToastUtils;
 import com.clevergump.newsreader.netease_news.view.IPageNewsView;
-import com.umeng.analytics.AnalyticsConfig;
 import com.umeng.analytics.MobclickAgent;
+import com.umeng.update.UmengUpdateAgent;
 import com.viewpagerindicator.TabPageIndicator;
 
 import java.io.Serializable;
@@ -74,8 +74,11 @@ public class NeteaseNewsListActivity extends SimpleProxyActivity {
         }
         setContentView(R.layout.activity_netease_news_list);
         super.onCreate(savedInstanceState);
-        // 设置友盟统计以加密的方式来传输日志
-        AnalyticsConfig.enableEncrypt(true);
+        // 友盟更新
+//        UmengUpdateAgent.setUpdateOnlyWifi(false);
+        UmengUpdateAgent.update(getApplicationContext());
+//        // 设置友盟统计以加密的方式来传输日志
+//        AnalyticsConfig.enableEncrypt(true);
     }
 
     @Override
