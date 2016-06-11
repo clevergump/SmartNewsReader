@@ -87,7 +87,7 @@ public class NeteaseNewsListAdapter extends BaseAdapter {
                     convertView = mInflater.inflate(ITEM_LAYOUT_RES_FOR_ONE_IMAGE, null);
                     holder = new ViewHolder();
                     holder.tvTitle = (TextView) convertView.findViewById(R.id.tv_news_item_title);
-                    holder.tvDigest = (TextView) convertView.findViewById(R.id.tv_news_item_digest);
+//                    holder.tvDigest = (TextView) convertView.findViewById(R.id.tv_news_item_digest);
                     holder.ivImageForOneImageItem = (ImageView) convertView.findViewById(R.id.iv_news_list_item_one_image);
                     convertView.setTag(holder);
                 } else {
@@ -105,7 +105,7 @@ public class NeteaseNewsListAdapter extends BaseAdapter {
                  *  随意设定的一个int值, 否则会报异常. 这样设计的目的是为了保证key的唯一性.
                  */
                 convertView.setTag(R.id.tv_news_item_title, holder.tvTitle);
-                holder.tvDigest.setText(neteaseNewsItem.digest);
+//                holder.tvDigest.setText(neteaseNewsItem.digest);
                 displayImage(holder.ivImageForOneImageItem, neteaseNewsItem.imgsrc);
                 break;
             case NeteaseNewsBase.NEWS_ITEM_VIEW_TYPE_THREE_IMAGE:

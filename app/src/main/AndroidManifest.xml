@@ -11,6 +11,11 @@
     <!-- 获取用户设备的IMEI，通过IMEI和mac来唯一的标识用户。 -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
 
+    <!-- 友盟更新 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+
     <!-- 联网时需要申请的权限 -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <!-- 检查是否有网络时需要申请的权限 -->
@@ -48,9 +53,20 @@
             </intent-filter>
         </activity>-->
 
+        <!-- 友盟更新相关 -->
+        <service
+            android:name="com.umeng.update.net.DownloadingService"
+            android:process=":DownloadingService" >
+        </service>
+        <activity
+            android:name="com.umeng.update.UpdateDialogActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+        </activity>
 
         <!-- 友盟统计 -->
+        <!-- UMENG_APPKEY 用来定位该应用的唯一性 -->
         <meta-data android:value="5718f4efe0f55ace980026c4" android:name="UMENG_APPKEY"></meta-data>
+        <!-- UMENG_CHANNEL：用来标注应用推广渠道，不同渠道可以上传不同更新包，您可以使用20位以内的英文和数字为渠道定名 -->
         <meta-data android:value="wandoujia" android:name="UMENG_CHANNEL"/>
 
     </application>
