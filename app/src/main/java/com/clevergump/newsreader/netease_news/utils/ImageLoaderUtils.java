@@ -34,7 +34,6 @@ public class ImageLoaderUtils {
             .showImageForEmptyUri(R.mipmap.bg_image_loading)
             .cacheInMemory(true)
             .cacheOnDisk(true)
-            .imageScaleType(ImageScaleType.IN_SAMPLE_POWER_OF_2)
             // RGB565: 图片的每1px所占用的存储空间大小是 5+6+5=16bit=2字节
             .bitmapConfig(Bitmap.Config.ALPHA_8)
             // 类似于scaleType="fitCenter". inSampleSize就是对图片宽高的压缩, 当然也顺带对应着像素点的减少从而降低了图片的大小(字节数)

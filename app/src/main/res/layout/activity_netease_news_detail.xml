@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    >
 
     <include
         android:id="@+id/netease_news_detail_title_bar"
@@ -18,7 +21,7 @@
         android:id="@+id/progress_bar_loading"
         android:layout_width="20dp"
         android:layout_height="20dp"
-        android:layout_centerInParent="true" />
+        android:layout_centerInParent="true"/>
 
     <ViewStub
         android:id="@+id/viewstub_load_fail"
@@ -39,47 +42,42 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/news_list_item_left_or_right_margin"
             android:layout_marginRight="@dimen/news_list_item_left_or_right_margin">
+
             <TextView
                 android:id="@+id/tv_netease_news_detail_title"
+                tools:text="国家队队友力挺伊布登陆英超"
                 android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:text="国家队队友力挺伊布登陆英超"
+                android:layout_height="wrap_content"
+                android:minHeight="35dp"
                 android:textSize="20sp"
-                android:gravity="center"/>
-
-<!--            <TextView
-                android:id="@+id/tv_netease_news_detail_title"
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:text="国家队队友力挺伊布登陆英超"
-                android:layout_below="@+id/netease_news_detail_title_bar_divider"
-                android:textSize="20sp"
-                android:gravity="center"/>-->
+                android:gravity="center"
+                />
 
             <RelativeLayout
                 android:id="@+id/vg_source_ptime"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_below="@+id/tv_netease_news_detail_title" >
+                android:layout_below="@+id/tv_netease_news_detail_title"
+                android:gravity="center">
+
                 <TextView
                     android:id="@+id/tv_netease_news_detail_source"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/netease_news_detail_source"
-                    android:textSize="12sp"
+                    android:layout_marginRight="10dp"
+                    tools:text="@string/netease_news_detail_source"
                     android:textColor="#99000000"
-                    android:layout_marginRight="10dp"/>
+                    android:textSize="12sp"/>
 
                 <TextView
                     android:id="@+id/tv_netease_news_detail_ptime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/netease_news_detail_ptime"
-                    android:textSize="12sp"
-                    android:textColor="#99000000"
+                    android:layout_alignBottom="@+id/tv_netease_news_detail_source"
                     android:layout_toRightOf="@+id/tv_netease_news_detail_source"
-                    android:layout_alignBottom="@+id/tv_netease_news_detail_source"/>
+                    tools:text="@string/netease_news_detail_ptime"
+                    android:textColor="#99000000"
+                    android:textSize="12sp"/>
             </RelativeLayout>
 
             <RelativeLayout
@@ -109,11 +107,11 @@
                 android:id="@+id/htv_netease_news_detail_body"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_margin="5dp"
                 android:layout_below="@+id/vg_image"
-                android:visibility="visible"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="5dp"
                 android:textSize="16sp"
-                android:layout_centerHorizontal="true" />
+                android:visibility="visible"/>
 
         </RelativeLayout>
     </ScrollView>
