@@ -222,11 +222,12 @@ public class NeteaseNewsDetailActivity extends SimpleProxyActivity implements Vi
      * @param htmlFormattedText
      */
     private void setNewsDetailBody(HtmlTextView htmlTextView, String htmlFormattedText) {
-        htmlFormattedText = htmlFormattedText.replace("<!--VIDEO#1--></p><p>", "");
-        htmlFormattedText = htmlFormattedText.replace("<!--VIDEO#2--></p><p>", "");
-        htmlFormattedText = htmlFormattedText.replace("<!--VIDEO#3--></p><p>", "");
-        htmlFormattedText = htmlFormattedText.replace("<!--VIDEO#4--></p><p>", "");
-        htmlFormattedText = htmlFormattedText.replace("<!--REWARD#0--></p><p>", "");
+        htmlFormattedText = htmlFormattedText.replace("<!--VIDEO#1--></p><p>", "")
+            .replace("<!--VIDEO#2--></p><p>", "")
+            .replace("<!--VIDEO#3--></p><p>", "")
+            .replace("<!--VIDEO#4--></p><p>", "")
+            .replace("<!--REWARD#0--></p><p>", "");
+
         // HtmlTextView的显示。
         htmlTextView.setHtmlFromString(htmlFormattedText, new HtmlTextView.LocalImageGetter());
     }
